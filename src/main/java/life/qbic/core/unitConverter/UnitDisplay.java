@@ -1,4 +1,4 @@
-package life.qbic.model.unitConverter;
+package life.qbic.core.unitConverter;
 
 public interface UnitDisplay {
 

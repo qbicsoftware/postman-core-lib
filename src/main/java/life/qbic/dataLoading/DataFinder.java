@@ -1,4 +1,4 @@
-package life.qbic.model.dataLoading;
+package life.qbic.dataLoading;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
@@ -20,9 +20,9 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class QbicDataFinder {
+public class DataFinder {
 
-    private final static Logger LOG = LogManager.getLogger(QbicDataFinder.class);
+    private final static Logger LOG = LogManager.getLogger(DataFinder.class);
 
     private IApplicationServerApi applicationServer;
 
@@ -32,7 +32,7 @@ public class QbicDataFinder {
 
     private String filterType;
 
-    public QbicDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
+    public DataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
@@ -150,56 +150,4 @@ public class QbicDataFinder {
         return allFileIDs;
     }
 
-
-
-
-
-
-
-
-    /**
-     * Search method for a given openBIS identifier.
-     *
-     * LIKELY NOT USEFUL ANYMORE - RECURSIVE METHOD SHOULD WORK JUST AS WELL -> use findAllDatasetsRecursive
-     *
-     * @param sampleId An openBIS sample ID
-     * @return A list of all data sets attached to the sample ID
-     */
-    @Deprecated
-    public List<DataSet> findAllDatasets(String sampleId, IApplicationServerApi applicationServer,
-                                         String sessionToken, String filterType) {
-        SampleSearchCriteria criteria = new SampleSearchCriteria();
-        criteria.withCode().thatEquals(sampleId);
-
-        // tell the API to fetch all descendents for each returned sample
-        SampleFetchOptions fetchOptions = new SampleFetchOptions();
-        DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
-        dsFetchOptions.withType();
-        fetchOptions.withChildrenUsing(fetchOptions);
-        fetchOptions.withDataSetsUsing(dsFetchOptions);
-        SearchResult<Sample> result = applicationServer.searchSamples(sessionToken, criteria, fetchOptions);
-
-        // get all datasets of sample with provided sample code and all descendants
-        List<DataSet> foundDatasets = new ArrayList<>();
-        for (Sample sample : result.getObjects()) {
-            foundDatasets.addAll(sample.getDataSets());
-            for (Sample desc : sample.getChildren()) {
-                foundDatasets.addAll(desc.getDataSets());
-            }
-        }
-
-        if (filterType.isEmpty())
-            return foundDatasets;
-
-        List<DataSet> filteredDatasets = new ArrayList<>();
-        for (DataSet ds : foundDatasets){
-            LOG.info(ds.getType().getCode() + " found.");
-            if (filterType.equals(ds.getType().getCode())) {
-
-                filteredDatasets.add(ds);
-            }
-        }
-
-        return filteredDatasets;
-    }
 }

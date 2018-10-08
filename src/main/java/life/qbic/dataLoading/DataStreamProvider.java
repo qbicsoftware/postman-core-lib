@@ -1,4 +1,4 @@
-package life.qbic.model.dataLoading;
+package life.qbic.dataLoading;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
@@ -7,7 +7,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
-import life.qbic.io.commandline.PostmanCommandLineOptions;
+import life.qbic.core.filtering.FilterOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class QbicDataStreamProvider {
+public class DataStreamProvider {
 
-    private final static Logger LOG = LogManager.getLogger(QbicDataStreamProvider.class);
+    private final static Logger LOG = LogManager.getLogger(DataStreamProvider.class);
 
     private IApplicationServerApi applicationServer;
 
@@ -29,38 +29,35 @@ public class QbicDataStreamProvider {
 
     private String filterType;
 
-    private final int defaultBufferSize;
-
-    public QbicDataStreamProvider(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType, int defaultBufferSize) {
+    public DataStreamProvider(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
         this.filterType = filterType;
-        this.defaultBufferSize = defaultBufferSize;
     }
 
     /**
      * Provides Inputstreams for IDs
      * checks whether any filtering option (suffix or regex) has been passed and applies filtering if needed
-     *
-     * @param commandLineParameters
+     * @param IDs
+     * @return
      */
-    public InputStream provideInputStreamForIds(PostmanCommandLineOptions commandLineParameters) {
-        QbicDataFinder qbicDataFinder = new QbicDataFinder(applicationServer,
+    public InputStream provideInputStreamForIds(List<String> IDs, FilterOptions filterOptions) {
+        DataFinder dataFinder = new DataFinder(applicationServer,
                 dataStoreServer,
                 sessionToken,
                 filterType);
 
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
-                commandLineParameters.ids.size(), commandLineParameters.ids.toString()));
+                IDs.size(), IDs.toString()));
 
         // a suffix was provided -> only provide stream for files which contain the suffix string
-        if (!commandLineParameters.suffixes.isEmpty()) {
+        if (!filterOptions.getSuffixes().isEmpty()) {
             List<InputStream> inputStreams = new ArrayList<>();
 
-            for (String ident : commandLineParameters.ids) {
+            for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<IDataSetFileId> foundSuffixFilteredIDs = qbicDataFinder.findAllSuffixFilteredIDs(ident, commandLineParameters.suffixes);
+                List<IDataSetFileId> foundSuffixFilteredIDs = dataFinder.findAllSuffixFilteredIDs(ident, filterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -70,12 +67,12 @@ public class QbicDataStreamProvider {
             return new SequenceInputStream(Collections.enumeration(inputStreams));
 
             // a regex pattern was provided -> only provide stream for files which contain the regex pattern
-        } else if (!commandLineParameters.regexPatterns.isEmpty()) {
+        } else if (!filterOptions.getRegexPatterns().isEmpty()) {
             List<InputStream> inputStreams = new ArrayList<>();
 
-            for (String ident : commandLineParameters.ids) {
+            for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<IDataSetFileId> foundRegexFilteredIDs = qbicDataFinder.findAllRegexFilteredIDs(ident, commandLineParameters.regexPatterns);
+                List<IDataSetFileId> foundRegexFilteredIDs = dataFinder.findAllRegexFilteredIDs(ident, filterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -88,9 +85,9 @@ public class QbicDataStreamProvider {
         } else {
             List<InputStream> inputStreams = new ArrayList<>();
 
-            for (String ident : commandLineParameters.ids) {
+            for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<DataSet> foundDataSets = qbicDataFinder.findAllDatasetsRecursive(ident);
+                List<DataSet> foundDataSets = dataFinder.findAllDatasetsRecursive(ident);
 
                 LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
 
@@ -102,7 +99,7 @@ public class QbicDataStreamProvider {
     }
 
     /**
-     * Provides an InputStream files that have been found after filtering for suffixes/regexes by a list of supplied IDs
+     * Provides an InputStream files that have been found after filtering for suffixes/regexPatterns by a list of supplied IDs
      *
      * @param filteredIDs
      * @return exitcode

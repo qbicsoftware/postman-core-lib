@@ -1,11 +1,11 @@
-package life.qbic.model.unitConverter;
+package life.qbic.core.unitConverter;
 
 
-class MegaBytes implements UnitDisplay{
+class KiloBytes implements UnitDisplay{
 
-    private String unit = "Mb";
+    private String unit = "kb";
 
-    private double divisor = Math.pow(10, 6);
+    private double divisor = Math.pow(10, 3);
 
 
     @Override
