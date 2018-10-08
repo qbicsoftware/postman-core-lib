@@ -7,7 +7,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
-import life.qbic.core.filtering.FilterOptions;
+import life.qbic.core.filtering.PostmanFilterOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DataStreamProvider {
+public class PostmanDataStreamProvider {
 
-    private final static Logger LOG = LogManager.getLogger(DataStreamProvider.class);
+    private final static Logger LOG = LogManager.getLogger(PostmanDataStreamProvider.class);
 
     private IApplicationServerApi applicationServer;
 
@@ -29,7 +29,7 @@ public class DataStreamProvider {
 
     private String filterType;
 
-    public DataStreamProvider(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
+    public PostmanDataStreamProvider(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
@@ -42,8 +42,8 @@ public class DataStreamProvider {
      * @param IDs
      * @return
      */
-    public InputStream provideInputStreamForIds(List<String> IDs, FilterOptions filterOptions) {
-        DataFinder dataFinder = new DataFinder(applicationServer,
+    public InputStream provideInputStreamForIds(List<String> IDs, PostmanFilterOptions postmanFilterOptions) {
+        PostmanDataFinder postmanDataFinder = new PostmanDataFinder(applicationServer,
                 dataStoreServer,
                 sessionToken,
                 filterType);
@@ -52,12 +52,12 @@ public class DataStreamProvider {
                 IDs.size(), IDs.toString()));
 
         // a suffix was provided -> only provide stream for files which contain the suffix string
-        if (!filterOptions.getSuffixes().isEmpty()) {
+        if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             List<InputStream> inputStreams = new ArrayList<>();
 
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<IDataSetFileId> foundSuffixFilteredIDs = dataFinder.findAllSuffixFilteredIDs(ident, filterOptions.getSuffixes());
+                List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -67,12 +67,12 @@ public class DataStreamProvider {
             return new SequenceInputStream(Collections.enumeration(inputStreams));
 
             // a regex pattern was provided -> only provide stream for files which contain the regex pattern
-        } else if (!filterOptions.getRegexPatterns().isEmpty()) {
+        } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             List<InputStream> inputStreams = new ArrayList<>();
 
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<IDataSetFileId> foundRegexFilteredIDs = dataFinder.findAllRegexFilteredIDs(ident, filterOptions.getRegexPatterns());
+                List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -87,7 +87,7 @@ public class DataStreamProvider {
 
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<DataSet> foundDataSets = dataFinder.findAllDatasetsRecursive(ident);
+                List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
 
                 LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
 
