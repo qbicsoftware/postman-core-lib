@@ -12,7 +12,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
-import life.qbic.util.RegexFilterDownloadUtilKt;
+import life.qbic.util.RegexFilterDownloadUtil;
 import life.qbic.util.StringUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PostmanDataFinder {
+class PostmanDataFinder {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataFinder.class);
 
@@ -32,7 +32,7 @@ public class PostmanDataFinder {
 
     private String filterType;
 
-    public PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
+    PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
@@ -45,7 +45,7 @@ public class PostmanDataFinder {
      * @param sampleId
      * @return all found datasets for a given sampleID
      */
-    public List<DataSet> findAllDatasetsRecursive(String sampleId) {
+    List<DataSet> findAllDatasetsRecursive(final String sampleId) {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatEquals(sampleId);
 
@@ -64,7 +64,7 @@ public class PostmanDataFinder {
             foundDatasets.addAll(sample.getDataSets());
 
             // fetch all datasets of the children
-            foundDatasets.addAll(fetchDesecendantDatasets(sample));
+            foundDatasets.addAll(fetchDescendantDatasets(sample));
         }
 
         if (filterType.isEmpty())
@@ -72,7 +72,7 @@ public class PostmanDataFinder {
 
         List<DataSet> filteredDatasets = new ArrayList<>();
         for (DataSet ds : foundDatasets){
-            LOG.info(ds.getType().getCode() + " found.");
+            LOG.debug(ds.getType().getCode() + " found.");
             if (filterType.equals(ds.getType().getCode())){
                 filteredDatasets.add(ds);
             }
@@ -87,14 +87,14 @@ public class PostmanDataFinder {
      * @param sample
      * @return all recursively found datasets
      */
-    private static List<DataSet> fetchDesecendantDatasets(Sample sample) {
+    private static List<DataSet> fetchDescendantDatasets(final Sample sample) {
         List<DataSet> foundSets = new ArrayList<>();
 
-        // fetch all datasets of the children
+        // fetch all datasets of the children recursively
         for (Sample child : sample.getChildren()) {
-            List<DataSet> foundChildrenDatasets = child.getDataSets();
+            final List<DataSet> foundChildrenDatasets = child.getDataSets();
             foundSets.addAll(foundChildrenDatasets);
-            foundSets.addAll(fetchDesecendantDatasets(child));
+            foundSets.addAll(fetchDescendantDatasets(child));
         }
 
         return foundSets;
@@ -108,10 +108,10 @@ public class PostmanDataFinder {
      * @param regexPatterns
      * @return
      */
-    public List<IDataSetFileId> findAllRegexFilteredIDs(String ident, List<String> regexPatterns) {
-        List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
+    List<IDataSetFileId> findAllRegexFilteredIDs(final String ident, final List<String> regexPatterns) {
+        final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
 
-        return RegexFilterDownloadUtilKt.findAllRegexFilteredIDsKotlin(regexPatterns, allDatasets, dataStoreServer, sessionToken);
+        return RegexFilterDownloadUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
     }
 
     /**
@@ -121,8 +121,8 @@ public class PostmanDataFinder {
      * @param suffixes
      * @return
      */
-    public List<IDataSetFileId> findAllSuffixFilteredIDs(String ident, List<String> suffixes) {
-        List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
+    List<IDataSetFileId> findAllSuffixFilteredIDs(final String ident, final List<String> suffixes) {
+        final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
         List<IDataSetFileId> allFileIDs = new ArrayList<>();
 
         for (DataSet ds : allDatasets) {
@@ -130,11 +130,11 @@ public class PostmanDataFinder {
             DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
             criteria.withDataSet().withCode().thatEquals(ds.getCode());
             SearchResult<DataSetFile> result = dataStoreServer.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
-            List<DataSetFile> files = result.getObjects();
+            final List<DataSetFile> files = result.getObjects();
 
             List<IDataSetFileId> fileIds = new ArrayList<>();
 
-            // remove everything that doesn't match the suffix -> only add if suffix matches
+            // only add to the result if the suffix matches
             for (DataSetFile file : files)
             {
                 for (String suffix : suffixes) {

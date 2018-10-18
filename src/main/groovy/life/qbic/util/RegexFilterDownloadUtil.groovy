@@ -1,4 +1,4 @@
-package life.qbic
+package life.qbic.util
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet
@@ -8,7 +8,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSe
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria
 
-class QbicDataLoaderRegexUtil {
+class RegexFilterDownloadUtil {
 
     /**
      * Using dollar slashy regex of groovy to match all provided regexes to filter the dataset files

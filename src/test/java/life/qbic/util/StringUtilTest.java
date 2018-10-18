@@ -1,6 +1,5 @@
 package life.qbic.util;
 
-import life.qbic.dataLoading.util.StringUtil;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

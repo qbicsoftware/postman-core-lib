@@ -10,7 +10,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import life.qbic.core.filtering.PostmanFilterOptions;
+import life.qbic.core.PostmanFilterOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -75,10 +75,9 @@ public class PostmanDataDownloader {
      * @param password The openBIS user's password
      * @return QBiCDataLoader instance
      */
-    public PostmanDataDownloader setCredentials(String user, String password) {
+    private void setCredentials(String user, String password) {
         this.user = user;
         this.password = password;
-        return this;
     }
 
     /**
@@ -87,8 +86,8 @@ public class PostmanDataDownloader {
      */
     public int login() {
         try {
-            this.sessionToken = this.applicationServer.login(this.user, this.password);
-            this.applicationServer.getSessionInformation(this.sessionToken);
+            sessionToken = applicationServer.login(user, password);
+            applicationServer.getSessionInformation(sessionToken);
         } catch (AssertionError | Exception err) {
             LOG.debug(err);
             return 1;
@@ -105,7 +104,7 @@ public class PostmanDataDownloader {
      * @param postmanDataDownloader
      * @throws IOException
      */
-    public void downloadRequestedFilesOfDatasets(List<String> IDs, PostmanFilterOptions postmanFilterOptions, PostmanDataDownloader postmanDataDownloader) throws IOException {
+    public void downloadRequestedFilesOfDatasets(final List<String> IDs, final PostmanFilterOptions postmanFilterOptions, final PostmanDataDownloader postmanDataDownloader) throws IOException {
         PostmanDataFinder postmanDataFinder = new PostmanDataFinder(applicationServer,
                 dataStoreServer,
                 sessionToken,
@@ -118,7 +117,7 @@ public class PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -128,7 +127,7 @@ public class PostmanDataDownloader {
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -138,7 +137,7 @@ public class PostmanDataDownloader {
             // no suffix or regex was supplied -> download all datasets
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
+                final List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
 
                 LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
 
@@ -173,7 +172,7 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    private void downloadFilesFilteredByIDs(String ident, List<IDataSetFileId> foundFilteredIDs) throws IOException {
+    private void downloadFilesFilteredByIDs(final String ident, final List<IDataSetFileId> foundFilteredIDs) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
@@ -201,7 +200,7 @@ public class PostmanDataDownloader {
      * @return exitcode
      * @throws IOException
      */
-    public int downloadFilesByID(List<IDataSetFileId> filteredIDs) throws IOException{
+    private int downloadFilesByID(final List<IDataSetFileId> filteredIDs) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);
@@ -227,6 +226,7 @@ public class PostmanDataDownloader {
                     }
                     System.out.print("\n");
                     initialStream.close();
+
                     //flush OutputStream to write any buffered data to file
                     os.flush();
                     os.close();
@@ -245,7 +245,7 @@ public class PostmanDataDownloader {
      * @param dataSetList A list of datasets
      * @return 0 if successful, 1 else
      */
-    public int downloadDataset(List<DataSet> dataSetList) throws IOException{
+    private int downloadDataset(final List<DataSet> dataSetList) throws IOException{
         for (DataSet dataset : dataSetList) {
             DataSetPermId permID = dataset.getPermId();
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
@@ -273,6 +273,7 @@ public class PostmanDataDownloader {
                     }
                     System.out.print("\n");
                     initialStream.close();
+
                     //flush OutputStream to write any buffered data to file
                     os.flush();
                     os.close();

@@ -7,7 +7,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
-import life.qbic.core.filtering.PostmanFilterOptions;
+import life.qbic.core.PostmanFilterOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -42,13 +42,13 @@ public class PostmanDataStreamProvider {
      * @param IDs
      * @return
      */
-    public InputStream provideInputStreamForIds(List<String> IDs, PostmanFilterOptions postmanFilterOptions) {
+    public InputStream provideInputStreamForIds(final List<String> IDs, final PostmanFilterOptions postmanFilterOptions) {
         PostmanDataFinder postmanDataFinder = new PostmanDataFinder(applicationServer,
                 dataStoreServer,
                 sessionToken,
                 filterType);
 
-        LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
+        LOG.debug(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
         // a suffix was provided -> only provide stream for files which contain the suffix string
@@ -56,10 +56,10 @@ public class PostmanDataStreamProvider {
             List<InputStream> inputStreams = new ArrayList<>();
 
             for (String ident : IDs) {
-                LOG.info(String.format("Downloading files for provided identifier %s", ident));
+                LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
                 List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
 
-                LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
+                LOG.debug(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
                 inputStreams.add(getDatasetStreamFromFilteredIds(foundSuffixFilteredIDs));
             }
@@ -71,10 +71,10 @@ public class PostmanDataStreamProvider {
             List<InputStream> inputStreams = new ArrayList<>();
 
             for (String ident : IDs) {
-                LOG.info(String.format("Downloading files for provided identifier %s", ident));
+                LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
                 List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
 
-                LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
+                LOG.debug(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
                 inputStreams.add(getDatasetStreamFromFilteredIds(foundRegexFilteredIDs));
             }
@@ -86,10 +86,10 @@ public class PostmanDataStreamProvider {
             List<InputStream> inputStreams = new ArrayList<>();
 
             for (String ident : IDs) {
-                LOG.info(String.format("Downloading files for provided identifier %s", ident));
+                LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
                 List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
 
-                LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
+                LOG.debug(String.format("Number of datasets found: %s", foundDataSets.size()));
 
                 inputStreams.add(getDatasetStreamFromDatasetList(foundDataSets));
             }
@@ -104,7 +104,7 @@ public class PostmanDataStreamProvider {
      * @param filteredIDs
      * @return exitcode
      */
-    private InputStream getDatasetStreamFromFilteredIds(List<IDataSetFileId> filteredIDs) {
+    private InputStream getDatasetStreamFromFilteredIds(final List<IDataSetFileId> filteredIDs) {
         List<InputStream> inputStreams = new ArrayList<>();
 
         for (IDataSetFileId id : filteredIDs) {
@@ -124,7 +124,7 @@ public class PostmanDataStreamProvider {
      * @param dataSetList A list of datasets
      * @return InputStream
      */
-    private InputStream getDatasetStreamFromDatasetList(List<DataSet> dataSetList) {
+    private InputStream getDatasetStreamFromDatasetList(final List<DataSet> dataSetList) {
         List<InputStream> inputStreams = new ArrayList<>();
 
         for (DataSet dataset : dataSetList) {
