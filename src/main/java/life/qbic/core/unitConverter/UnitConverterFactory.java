@@ -10,8 +10,7 @@ public class UnitConverterFactory {
 
     static double teraByteFactor = Math.pow(10, 12);
 
-    public static UnitDisplay determineBestUnitType(long bytes){
-
+    public static UnitDisplay determineBestUnitType(final long bytes){
         if (bytes > teraByteFactor){
             return new TeraBytes();
         }
@@ -29,7 +28,6 @@ public class UnitConverterFactory {
         }
 
         return new Bytes();
-
     }
 
 }

@@ -3,7 +3,7 @@ package life.qbic.core.unitConverter;
 
 class KiloBytes implements UnitDisplay{
 
-    private String unit = "kb";
+    private String unit = "Kb";
 
     private double divisor = Math.pow(10, 3);
 
