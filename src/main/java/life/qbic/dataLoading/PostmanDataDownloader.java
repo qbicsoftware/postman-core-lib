@@ -9,7 +9,6 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import life.qbic.core.PostmanFilterOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,35 +37,18 @@ public class PostmanDataDownloader {
 
 
     /**
-     * Constructor for a QBiCDataLoaderInstance
-     * @param AppServerUri The openBIS application server URL (AS)
-     * @param DataServerUri The openBIS datastore server URL (DSS)
-     * @param user The openBIS user
-     * @param password The openBis password
-     * @param bufferSize The buffer size for the InputStream reader
+     *
+     * @param applicationServer
+     * @param dataStoreServer
+     * @param bufferSize
+     * @param filterType
      */
-    public PostmanDataDownloader(String AppServerUri, String DataServerUri,
-                                 String user, String password,
-                                 int bufferSize, String filterType) {
+    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                              int bufferSize, String filterType) {
         this.defaultBufferSize = bufferSize;
         this.filterType = filterType;
-
-        if (!AppServerUri.isEmpty()) {
-            this.applicationServer = HttpInvokerUtils.createServiceStub(
-                    IApplicationServerApi.class,
-                    AppServerUri + IApplicationServerApi.SERVICE_URL, 10000);
-        } else {
-            this.applicationServer = null;
-        }
-        if (!DataServerUri.isEmpty()) {
-            this.dataStoreServer = HttpInvokerUtils.createStreamSupportingServiceStub(
-                    IDataStoreServerApi.class,
-                    DataServerUri + IDataStoreServerApi.SERVICE_URL, 10000);
-        } else {
-            this.dataStoreServer = null;
-        }
-
-        this.setCredentials(user, password);
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
     }
 
     /**

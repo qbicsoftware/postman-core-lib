@@ -16,15 +16,7 @@ public class PostmanFilterOptions {
         return suffixes;
     }
 
-    public void setSuffixes(List<String> suffixes) {
-        this.suffixes = suffixes;
-    }
-
     public List<String> getRegexPatterns() {
         return regexPatterns;
-    }
-
-    public void setRegexPatterns(List<String> regexPatterns) {
-        this.regexPatterns = regexPatterns;
     }
 }
