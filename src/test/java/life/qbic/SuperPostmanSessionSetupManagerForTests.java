@@ -1,6 +1,6 @@
 package life.qbic;
 
-import life.qbic.Exceptions.PostmanOpenBISLoginFailedException;
+import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
 import life.qbic.dataLoading.PostmanDataFinder;

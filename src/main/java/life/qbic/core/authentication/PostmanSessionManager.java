@@ -3,7 +3,8 @@ package life.qbic.core.authentication;
 import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
-import life.qbic.Exceptions.PostmanOpenBISLoginFailedException;
+import life.qbic.exceptions.OpenBISAuthenticationFailedException;
+import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -54,11 +55,12 @@ public class PostmanSessionManager {
         postmanSessionManager.setDataStoreServer(postmanConfig.getDss_url());
 
         // authenticate at openBIS and verify
-        int returnCode = postmanSessionManager.openBISAuthentication(
-                postmanSessionManager.getApplicationServer(),
-                postmanConfig.getUsername(), postmanConfig.getPassword());
-        LOG.info(String.format("OpenBis authentication returned with %s", returnCode));
-        if (returnCode != 0) {
+        try {
+            postmanSessionManager.openBISAuthentication(
+                    postmanSessionManager.getApplicationServer(),
+                    postmanConfig.getUsername(), postmanConfig.getPassword());
+            LOG.info("OpenBIS connection established successfully!");
+        } catch (OpenBISAuthenticationFailedException e) {
             LOG.error("Connection to openBIS failed.");
             throw new PostmanOpenBISLoginFailedException("Connection to openBIS failed");
         }
@@ -69,22 +71,24 @@ public class PostmanSessionManager {
     }
 
     /**
-     * Login method for openBIS authentication
-     *
-     * @return 0 if successful, 1 else
+     * provides login for openBIS authentication
+     * uses username and password to login to OpenBIS
+     * @param applicationServer
+     * @param user
+     * @param password
+     * @throws OpenBISAuthenticationFailedException
      */
-    private int openBISAuthentication(IApplicationServerApi applicationServer, String user, String password) {
+    private void openBISAuthentication(IApplicationServerApi applicationServer, String user, String password) throws OpenBISAuthenticationFailedException {
         try {
             String sessionTokenReturned = applicationServer.login(user, password);
             applicationServer.getSessionInformation(sessionTokenReturned);
 
             sessionToken = sessionTokenReturned;
-            return 0;
         } catch (Exception err) {
             LOG.debug(err);
 
             sessionToken = "";
-            return 1;
+            throw new OpenBISAuthenticationFailedException("Authentication for OpenBIS failed! Setting sessionToken to empty string");
         }
     }
 

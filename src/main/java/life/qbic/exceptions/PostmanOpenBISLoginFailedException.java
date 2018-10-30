@@ -1,4 +1,4 @@
-package life.qbic.Exceptions;
+package life.qbic.exceptions;
 
 public class PostmanOpenBISLoginFailedException extends Exception {
 
