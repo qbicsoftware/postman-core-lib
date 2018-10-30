@@ -25,3 +25,7 @@ logs/
 
 # compiled Vaadin widgetsets
 src/main/webapp/VAADIN/widgetsets
+
+# properties file
+src/main/resources/qbicPropertiesFile.conf
+src/test/resources/qbicPropertiesFile.conf

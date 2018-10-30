@@ -20,7 +20,7 @@ import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
-class PostmanDataFinder {
+public class PostmanDataFinder {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataFinder.class);
 
@@ -30,13 +30,19 @@ class PostmanDataFinder {
 
     private String sessionToken;
 
-    private String filterType;
+    private String filterType = "";
 
     PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
         this.filterType = filterType;
+    }
+
+    public PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken) {
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
     }
 
     /**

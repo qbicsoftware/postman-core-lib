@@ -34,7 +34,7 @@ class RegexFilterDownloadUtil {
 
             def fileIds = new ArrayList<>()
 
-            // remove everything that doesn't match the regex -> only add if regex matches
+            // only add to the result if regex matches
             for (DataSetFile file : files)
             {
                 for (String regex : regexPatterns) {

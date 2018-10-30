@@ -9,7 +9,6 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
-import ch.systemsx.cisd.common.spring.HttpInvokerUtils;
 import life.qbic.core.PostmanFilterOptions;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,80 +19,48 @@ import java.util.*;
 
 public class PostmanDataDownloader {
 
-    private String user;
-
-    private String password;
-
-    private IApplicationServerApi applicationServer;
-
-    private IDataStoreServerApi dataStoreServer;
-
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloader.class);
 
+    private String user;
+    private String password;
+    private IApplicationServerApi applicationServer;
+    private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
-
     private String filterType;
 
-    private final int defaultBufferSize;
+    private final int DEFAULTBUFFERSIZE = 1024;
+    private int buffersize = DEFAULTBUFFERSIZE;
 
 
     /**
-     * Constructor for a QBiCDataLoaderInstance
-     * @param AppServerUri The openBIS application server URL (AS)
-     * @param DataServerUri The openBIS datastore server URL (DSS)
-     * @param user The openBIS user
-     * @param password The openBis password
-     * @param bufferSize The buffer size for the InputStream reader
+     *
+     * @param applicationServer
+     * @param dataStoreServer
+     * @param bufferSize
+     * @param filterType
      */
-    public PostmanDataDownloader(String AppServerUri, String DataServerUri,
-                                 String user, String password,
-                                 int bufferSize, String filterType) {
-        this.defaultBufferSize = bufferSize;
+    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                              String sessionToken, int bufferSize, String filterType) {
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
+        this.buffersize = bufferSize;
         this.filterType = filterType;
-
-        if (!AppServerUri.isEmpty()) {
-            this.applicationServer = HttpInvokerUtils.createServiceStub(
-                    IApplicationServerApi.class,
-                    AppServerUri + IApplicationServerApi.SERVICE_URL, 10000);
-        } else {
-            this.applicationServer = null;
-        }
-        if (!DataServerUri.isEmpty()) {
-            this.dataStoreServer = HttpInvokerUtils.createStreamSupportingServiceStub(
-                    IDataStoreServerApi.class,
-                    DataServerUri + IDataStoreServerApi.SERVICE_URL, 10000);
-        } else {
-            this.dataStoreServer = null;
-        }
-
-        this.setCredentials(user, password);
     }
 
-    /**
-     * Setter for user and password credentials
-     * @param user The openBIS user
-     * @param password The openBIS user's password
-     * @return QBiCDataLoader instance
-     */
-    private void setCredentials(String user, String password) {
-        this.user = user;
-        this.password = password;
+    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                                 String sessionToken, int bufferSize) {
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
+        this.buffersize = bufferSize;
     }
 
-    /**
-     * Login method for openBIS authentication
-     * @return 0 if successful, 1 else
-     */
-    public int login() {
-        try {
-            sessionToken = applicationServer.login(user, password);
-            applicationServer.getSessionInformation(sessionToken);
-        } catch (AssertionError | Exception err) {
-            LOG.debug(err);
-            return 1;
-        }
-
-        return 0;
+    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                                 String sessionToken) {
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
     }
 
     /**
@@ -215,7 +182,7 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(System.getProperty("user.dir") + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < defaultBufferSize) ? (int) file.getDataSetFile().getFileLength() : defaultBufferSize;
+                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
@@ -262,7 +229,7 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(System.getProperty("user.dir") + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < defaultBufferSize) ? (int) file.getDataSetFile().getFileLength() : defaultBufferSize;
+                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
