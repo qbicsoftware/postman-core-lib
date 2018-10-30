@@ -9,14 +9,12 @@ import org.junit.Test;
 public class PostmanDataFinderTest {
 
     private static PostmanConfig postmanConfig;
-
+    private static PostmanSessionManager  postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
     @BeforeClass
     public static void setupBeforeClass() throws Exception {
         postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
         // openBISAuthentication to OpenBIS
-        PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
         postmanSessionManager.loginToOpenBIS(postmanConfig);
-        
     }
 
     @Test
