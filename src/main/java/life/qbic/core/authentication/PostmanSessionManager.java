@@ -32,9 +32,11 @@ public class PostmanSessionManager {
     }
 
     /**
-     * TODO
+     * logs into OpenBIS
+     * sets all properties of the current PostmanSessionManager singleton
      *
-     * @param postmanConfig
+     * @param postmanConfig either created by commandline parameters or after having read a properties file
+     * @throws PostmanOpenBISLoginFailedException if login failed in any way
      */
     public void loginToOpenBIS(PostmanConfig postmanConfig) throws PostmanOpenBISLoginFailedException {
         PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
@@ -56,6 +58,7 @@ public class PostmanSessionManager {
 
     /**
      * Login method for openBIS authentication
+     *
      * @return 0 if successful, 1 else
      */
     private int openBISAuthentication(IApplicationServerApi applicationServer, String user, String password) {
@@ -74,8 +77,21 @@ public class PostmanSessionManager {
     }
 
     /**
-     * TODO
-     * @param applicationServerURL
+     * logs out from OpenBIS
+     * resets the sessiontoken -> null
+     */
+    void logoutFromOpenBIS() {
+        if (applicationServer.isSessionActive(sessionToken)) {
+            applicationServer.logout(sessionToken);
+            sessionToken = null;
+        }
+    }
+
+    /**
+     * creates an ApplicationServer for the passed url
+     * sets the ApplicationServer of the current PostmanSessionManager singleton
+     *
+     * @param applicationServerURL url to create ApplicationServer for
      */
     private void setApplicationServer(String applicationServerURL) {
         if (!applicationServerURL.isEmpty()) {
@@ -88,8 +104,10 @@ public class PostmanSessionManager {
     }
 
     /**
-     * TODO
-     * @param dataStoreServerURL
+     * creates a DataStoreServer for the passed url
+     * sets the DataStoreServer for the current PostmanSessionManager singleton
+     *
+     * @param dataStoreServerURL url to create DataStoreServer for
      */
     private void setDataStoreServer(String dataStoreServerURL) {
         if (!dataStoreServerURL.isEmpty()) {
@@ -113,10 +131,6 @@ public class PostmanSessionManager {
         return sessionToken;
     }
 
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
-    }
-
     public int getBuffersize() {
         return buffersize;
     }
@@ -124,8 +138,6 @@ public class PostmanSessionManager {
     public void setBuffersize(int buffersize) {
         this.buffersize = buffersize;
     }
-
-
 
 }
 

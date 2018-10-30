@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class PostmanPropertiesParser {
 
-    public PostmanPropertiesParser() {
+    private PostmanPropertiesParser() {
 
     }
 

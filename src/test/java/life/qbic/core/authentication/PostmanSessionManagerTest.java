@@ -1,37 +1,59 @@
 package life.qbic.core.authentication;
 
+import life.qbic.Exceptions.PostmanOpenBISLoginFailedException;
+import life.qbic.SuperPostmanSessionSetupForTests;
 import life.qbic.io.parser.PostmanPropertiesParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 /**
  * Contains tests related to session managment
  */
-public class PostmanSessionManagerTest {
+public class PostmanSessionManagerTest extends SuperPostmanSessionSetupForTests {
 
-    private static PostmanConfig postmanConfig;
     private static PostmanSessionManager  postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
-    @BeforeClass
-    public static void setupBeforeClass() throws Exception {
-        postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
-        // openBISAuthentication to OpenBIS
-        postmanSessionManager.loginToOpenBIS(postmanConfig);
-    }
 
     /**
-     * tests whether or not a connection exists after logging in
+     * does connection exist after logging in?
      */
     @Test
-    public void testLogin() {
+    public void testLoggedIn() {
         assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
     }
 
+    /**
+     * is connection closed after logging out?
+     */
     @Test
     public void testLogout() {
+        assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
         postmanSessionManager.getApplicationServer().logout(postmanSessionManager.getSessionToken());
         assertFalse(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+    }
+
+    /**
+     * is sessionToken set after having logged in?
+     * is sessionToken null after having logged out?
+     * is connection for former sessionToken closed after having logged out?
+     */
+    @Test
+    public void testSessionToken() {
+        assertNotNull(postmanSessionManager.getSessionToken());
+        assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+        String old_sessiontoken = postmanSessionManager.getSessionToken();
+        postmanSessionManager.logoutFromOpenBIS();
+        assertNull(postmanSessionManager.getSessionToken());
+        assertFalse(postmanSessionManager.getApplicationServer().isSessionActive(old_sessiontoken));
+
+        // since the order of execution is NOT guaranteed in junit we need to login again for other tests
+        try {
+            setupBeforeClass();
+        } catch (IOException | PostmanOpenBISLoginFailedException e) {
+            e.printStackTrace();
+        }
     }
 }
