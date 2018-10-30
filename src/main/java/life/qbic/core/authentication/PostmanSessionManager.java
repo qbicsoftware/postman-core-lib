@@ -8,9 +8,18 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Singleton to provide access to OpenBIS openBISAuthentication functionality
+ * Singleton to provide access to OpenBIS
+ * Provides login and logout
  */
 public class PostmanSessionManager {
+
+    /**
+     * enum specifying the current status of PostmanSessionManager
+     */
+    private enum PostmanSessionManagerStatus {
+        LOGGED_IN,
+        LOGGED_OUT
+    }
 
     private final static Logger LOG = LogManager.getLogger(PostmanSessionManager.class);
 
@@ -19,9 +28,10 @@ public class PostmanSessionManager {
     private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
     private int buffersize;
+    private PostmanSessionManagerStatus postmanSessionManagerStatus;
 
     /**
-     * private, since we don't want any initialization to happen -> singleton pattern is used
+     * private, since we don't want any further initialization to happen -> singleton pattern is used
      */
     private PostmanSessionManager() {
 
@@ -53,6 +63,8 @@ public class PostmanSessionManager {
             throw new PostmanOpenBISLoginFailedException("Connection to openBIS failed");
         }
 
+        postmanSessionManagerStatus = PostmanSessionManagerStatus.LOGGED_IN;
+
         LOG.info("Connection to openBIS was successful.");
     }
 
@@ -68,11 +80,11 @@ public class PostmanSessionManager {
 
             sessionToken = sessionTokenReturned;
             return 0;
-        } catch (AssertionError | Exception err) {
+        } catch (Exception err) {
             LOG.debug(err);
 
             sessionToken = "";
-            return -1;
+            return 1;
         }
     }
 
@@ -84,6 +96,7 @@ public class PostmanSessionManager {
         if (applicationServer.isSessionActive(sessionToken)) {
             applicationServer.logout(sessionToken);
             sessionToken = null;
+            postmanSessionManagerStatus = PostmanSessionManagerStatus.LOGGED_OUT;
         }
     }
 
@@ -139,5 +152,8 @@ public class PostmanSessionManager {
         this.buffersize = buffersize;
     }
 
+    public PostmanSessionManagerStatus getPostmanSessionManagerStatus() {
+        return postmanSessionManagerStatus;
+    }
 }
 

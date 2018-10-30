@@ -1,9 +1,7 @@
 package life.qbic.dataLoading;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import life.qbic.SuperPostmanSessionSetupForTests;
-import life.qbic.core.authentication.PostmanSessionManager;
-import org.junit.BeforeClass;
+import life.qbic.SuperPostmanSessionSetupManagerForTests;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostmanDataFinderTest extends SuperPostmanSessionSetupForTests {
+public class PostmanDataFinderTest extends SuperPostmanSessionSetupManagerForTests {
 
     private static PostmanDataFinder postmanDataFinder = getPostmanDataFinder();
 

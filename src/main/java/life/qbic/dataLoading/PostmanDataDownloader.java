@@ -35,7 +35,6 @@ public class PostmanDataDownloader {
 
     private final int defaultBufferSize;
 
-
     /**
      *
      * @param applicationServer
@@ -51,31 +50,11 @@ public class PostmanDataDownloader {
         this.dataStoreServer = dataStoreServer;
     }
 
-    /**
-     * Setter for user and password credentials
-     * @param user The openBIS user
-     * @param password The openBIS user's password
-     * @return QBiCDataLoader instance
-     */
-    private void setCredentials(String user, String password) {
-        this.user = user;
-        this.password = password;
-    }
-
-    /**
-     * Login method for openBIS authentication
-     * @return 0 if successful, 1 else
-     */
-    public int login() {
-        try {
-            sessionToken = applicationServer.login(user, password);
-            applicationServer.getSessionInformation(sessionToken);
-        } catch (AssertionError | Exception err) {
-            LOG.debug(err);
-            return 1;
-        }
-
-        return 0;
+    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                                 int bufferSize) {
+        this.defaultBufferSize = bufferSize;
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
     }
 
     /**

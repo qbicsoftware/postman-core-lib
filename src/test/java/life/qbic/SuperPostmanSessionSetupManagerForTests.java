@@ -10,10 +10,13 @@ import org.junit.Ignore;
 
 import java.io.IOException;
 
+/**
+ * Super class for all tests which require A PostmanSession
+ * Furthermore, objects for all DataLoading operations are created and provided
+ */
 @Ignore
-public class SuperPostmanSessionSetupForTests {
+public class SuperPostmanSessionSetupManagerForTests {
 
-    private static PostmanConfig postmanConfig;
     private static PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
     private static PostmanDataFinder postmanDataFinder;
 
@@ -26,7 +29,7 @@ public class SuperPostmanSessionSetupForTests {
      */
     @BeforeClass
     public static void setupBeforeClass() throws IOException, PostmanOpenBISLoginFailedException {
-        postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
+        PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
         // openBISAuthentication to OpenBIS
         postmanSessionManager.loginToOpenBIS(postmanConfig);
 
