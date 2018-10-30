@@ -1,5 +1,7 @@
 package life.qbic;
 
+import life.qbic.dataLoading.PostmanDataDownloader;
+import life.qbic.dataLoading.PostmanDataStreamProvider;
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
@@ -17,8 +19,9 @@ import java.io.IOException;
 @Ignore
 public class SuperPostmanSessionSetupManagerForTests {
 
-    private static PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
     private static PostmanDataFinder postmanDataFinder;
+    private static PostmanDataDownloader postmanDataDownloader;
+    private static PostmanDataStreamProvider postmanDataStreamProvider;
 
     /**
      * setups PostmanSessionManager
@@ -30,10 +33,21 @@ public class SuperPostmanSessionSetupManagerForTests {
     @BeforeClass
     public static void setupBeforeClass() throws IOException, PostmanOpenBISLoginFailedException {
         PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
-        // openBISAuthentication to OpenBIS
+        PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
         postmanSessionManager.loginToOpenBIS(postmanConfig);
 
+        // create all dataloading objects
         postmanDataFinder = new PostmanDataFinder(
+                postmanSessionManager.getApplicationServer(),
+                postmanSessionManager.getDataStoreServer(),
+                postmanSessionManager.getSessionToken()
+        );
+        postmanDataDownloader = new PostmanDataDownloader(
+                postmanSessionManager.getApplicationServer(),
+                postmanSessionManager.getDataStoreServer(),
+                postmanSessionManager.getSessionToken()
+        );
+        postmanDataStreamProvider = new PostmanDataStreamProvider(
                 postmanSessionManager.getApplicationServer(),
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
@@ -42,6 +56,14 @@ public class SuperPostmanSessionSetupManagerForTests {
 
     protected static PostmanDataFinder getPostmanDataFinder() {
         return postmanDataFinder;
+    }
+
+    public static PostmanDataDownloader getPostmanDataDownloader() {
+        return postmanDataDownloader;
+    }
+
+    public static PostmanDataStreamProvider getPostmanDataStreamProvider() {
+        return postmanDataStreamProvider;
     }
 }
 

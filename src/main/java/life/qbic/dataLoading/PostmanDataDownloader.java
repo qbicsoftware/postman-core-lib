@@ -19,21 +19,18 @@ import java.util.*;
 
 public class PostmanDataDownloader {
 
-    private String user;
-
-    private String password;
-
-    private IApplicationServerApi applicationServer;
-
-    private IDataStoreServerApi dataStoreServer;
-
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloader.class);
 
+    private String user;
+    private String password;
+    private IApplicationServerApi applicationServer;
+    private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
-
     private String filterType;
 
-    private final int defaultBufferSize;
+    private final int DEFAULTBUFFERSIZE = 1024;
+    private int buffersize = DEFAULTBUFFERSIZE;
+
 
     /**
      *
@@ -43,18 +40,27 @@ public class PostmanDataDownloader {
      * @param filterType
      */
     public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
-                              int bufferSize, String filterType) {
-        this.defaultBufferSize = bufferSize;
-        this.filterType = filterType;
+                              String sessionToken, int bufferSize, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
+        this.buffersize = bufferSize;
+        this.filterType = filterType;
     }
 
     public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
-                                 int bufferSize) {
-        this.defaultBufferSize = bufferSize;
+                                 String sessionToken, int bufferSize) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
+        this.buffersize = bufferSize;
+    }
+
+    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                                 String sessionToken) {
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
     }
 
     /**
@@ -176,7 +182,7 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(System.getProperty("user.dir") + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < defaultBufferSize) ? (int) file.getDataSetFile().getFileLength() : defaultBufferSize;
+                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
@@ -223,7 +229,7 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(System.getProperty("user.dir") + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < defaultBufferSize) ? (int) file.getDataSetFile().getFileLength() : defaultBufferSize;
+                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer

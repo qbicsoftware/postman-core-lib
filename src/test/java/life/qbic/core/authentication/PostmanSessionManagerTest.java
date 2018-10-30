@@ -10,10 +10,11 @@ import static org.junit.Assert.*;
 
 /**
  * Contains tests related to session managment
+ * starts logged in, since it extends SuperPostmanSessionSetupManager
  */
 public class PostmanSessionManagerTest extends SuperPostmanSessionSetupManagerForTests {
 
-    private static PostmanSessionManager  postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
+    private static PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
 
     /**
      * does connection exist after logging in?
@@ -37,6 +38,7 @@ public class PostmanSessionManagerTest extends SuperPostmanSessionSetupManagerFo
      * is sessionToken set after having logged in?
      * is sessionToken null after having logged out?
      * is connection for former sessionToken closed after having logged out?
+     * //TODO It's a bad idea to recreate setup -> I should modify this test
      */
     @Test
     public void testSessionToken() {

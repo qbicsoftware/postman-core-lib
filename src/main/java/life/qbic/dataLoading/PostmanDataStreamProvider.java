@@ -22,11 +22,8 @@ public class PostmanDataStreamProvider {
     private final static Logger LOG = LogManager.getLogger(PostmanDataStreamProvider.class);
 
     private IApplicationServerApi applicationServer;
-
     private IDataStoreServerApi dataStoreServer;
-
     private String sessionToken;
-
     private String filterType;
 
     public PostmanDataStreamProvider(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
@@ -34,6 +31,12 @@ public class PostmanDataStreamProvider {
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
         this.filterType = filterType;
+    }
+
+    public PostmanDataStreamProvider(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken) {
+        this.applicationServer = applicationServer;
+        this.dataStoreServer = dataStoreServer;
+        this.sessionToken = sessionToken;
     }
 
     /**
