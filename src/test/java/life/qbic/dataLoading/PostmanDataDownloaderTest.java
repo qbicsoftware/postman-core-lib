@@ -1,13 +1,12 @@
 package life.qbic.dataLoading;
 
+import life.qbic.SuperPostmanSessionSetupManagerForTests;
+import life.qbic.testConfigurations.IntegrationTest;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
-public class PostmanDataDownloaderTest {
-
-    @Test
-    public void testLogin() {
-
-    }
+@Category(IntegrationTest.class)
+public class PostmanDataDownloaderTest extends SuperPostmanSessionSetupManagerForTests {
 
     @Test
     public void testDownloadRequestedFilesOfDatasets() {

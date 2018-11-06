@@ -4,7 +4,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.SuperPostmanSessionSetupManagerForTests;
+import life.qbic.testConfigurations.IntegrationTest;
+import life.qbic.testConfigurations.Slow;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+
 import static com.google.common.truth.Truth.assertThat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +17,8 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostmanDataFinderTest extends SuperPostmanSessionSetupManagerForTests {
+@Category({IntegrationTest.class, Slow.class})
+public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests {
 
     private static PostmanDataFinder postmanDataFinder = getPostmanDataFinder();
 
