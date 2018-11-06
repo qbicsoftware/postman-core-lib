@@ -84,7 +84,7 @@ public class PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -94,7 +94,7 @@ public class PostmanDataDownloader {
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -139,7 +139,7 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    private void downloadFilesFilteredByIDs(final String ident, final List<IDataSetFileId> foundFilteredIDs) throws IOException {
+    private void downloadFilesFilteredByIDs(final String ident, final List<DataSetFilePermId> foundFilteredIDs) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
@@ -167,7 +167,7 @@ public class PostmanDataDownloader {
      * @return exitcode
      * @throws IOException
      */
-    private int downloadFilesByID(final List<IDataSetFileId> filteredIDs) throws IOException{
+    private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);

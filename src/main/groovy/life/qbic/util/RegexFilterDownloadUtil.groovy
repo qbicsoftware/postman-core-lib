@@ -5,7 +5,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria
 
 class RegexFilterDownloadUtil {
@@ -19,10 +19,10 @@ class RegexFilterDownloadUtil {
      * @param sessionToken
      * @return all fileIDs which are forwarded to download
      */
-    static List<IDataSetFileId> findAllRegexFilteredIDsGroovy(List<String> regexPatterns,
-                                                              List<DataSet> allDatasets,
-                                                              IDataStoreServerApi dataStoreServer,
-                                                              String sessionToken) {
+    static List<DataSetFilePermId> findAllRegexFilteredIDsGroovy(List<String> regexPatterns,
+                                                                 List<DataSet> allDatasets,
+                                                                 IDataStoreServerApi dataStoreServer,
+                                                                 String sessionToken) {
         def allFileIDs = new ArrayList<>()
 
         for (DataSet ds : allDatasets) {

@@ -60,7 +60,7 @@ public class PostmanDataStreamProvider {
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
-                List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.debug(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -75,7 +75,7 @@ public class PostmanDataStreamProvider {
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
-                List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.debug(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -107,7 +107,7 @@ public class PostmanDataStreamProvider {
      * @param filteredIDs
      * @return exitcode
      */
-    private InputStream getDatasetStreamFromFilteredIds(final List<IDataSetFileId> filteredIDs) {
+    private InputStream getDatasetStreamFromFilteredIds(final List<DataSetFilePermId> filteredIDs) {
         List<InputStream> inputStreams = new ArrayList<>();
 
         for (IDataSetFileId id : filteredIDs) {
