@@ -23,7 +23,9 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
     private static PostmanDataFinder postmanDataFinder = getPostmanDataFinder();
 
     /**
-     * uses sampleID /CONFERENCE_DEMO/QTGPR014A2 to
+     * uses sampleID /CONFERENCE_DEMO/QTGPR014A2
+     *
+     * tests whether recursively found datasets' count and codes are matching
      */
     @Test
     public void testFindAllDatasetsRecursive() {
@@ -49,6 +51,13 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
         assertEquals(expectedCodes, foundDatasetsCodes);
     }
 
+    /**
+     * uses regex: '.pdf'
+     *
+     * tests whether regex filtering returns the
+     * correct count of IDs, matching DataSetPermIDs and the corresponding filepaths
+     *
+     */
     @Test
     public void testFindAllRegexFilteredIDsSimple() {
         List<DataSetFilePermId> expectedIDs = new ArrayList<DataSetFilePermId>() {
@@ -85,6 +94,13 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
         assertEquals(expectedIDsFilePath, foundIDsFilepath);
     }
 
+    /**
+     * uses regex: '.html'
+     *
+     * tests whether regex filtering returns the
+     * correct count of IDs, matching DataSetPermIDs and the corresponding filepaths
+     *
+     */
     @Test
     public void testFindAllRegexFilteredIDsModeratelyComplex() {
         List<DataSetFilePermId> expectedIDs = new ArrayList<DataSetFilePermId>() {
@@ -127,6 +143,12 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
         assertThat(foundRegexFilteredIDs.size()).isAtLeast(41); // 06.11.2018
     }
 
+    /**
+     * uses regex: '.jobscript.FastQC.'
+     *
+     * tests whether regex filtering returns the correct count of IDs
+     *
+     */
     @Test
     public void testFindAllRegexFilteredIDsComplex() {
         List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".jobscript.FastQC.")));
@@ -135,6 +157,13 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
         assertThat(foundRegexFilteredIDs.size()).isAtLeast(252); // 06.11.2018
     }
 
+    /**
+     * uses suffix: '.pdf'
+     *
+     * tests whether suffix filtering returns the
+     * correct count of IDs, matching DataSetPermIDs and the corresponding filepaths
+     *
+     */
     @Test
     public void testFindAllSuffixFilteredIDs() {
         List<DataSetFilePermId> expectedIDs = new ArrayList<DataSetFilePermId>() {
@@ -169,6 +198,55 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
 
         // all filePaths matching?
         assertEquals(expectedIDsFilePath, foundIDsFilepath);
+    }
+
+    /**
+     * uses regex: '.html'
+     *
+     * tests whether regex filtering returns the
+     * correct count of IDs, matching DataSetPermIDs and the corresponding filepaths
+     *
+     */
+    @Test
+    public void testFindAllSuffixFilteredIDsLarger() {
+        List<DataSetFilePermId> expectedIDs = new ArrayList<DataSetFilePermId>() {
+            {
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00119_SRR099967_1.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00119_SRR099967_2.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00121_ERR031964_1.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00121_ERR031964_2.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00638_SRR070804_1.html"));
+            }
+        };
+
+        List<String> expectedPermIDs = expectedIDs.stream()
+                .map(DataSetFilePermId::toString)
+                .collect(Collectors.toList());
+
+        List<String> expectedIDsFilePath = expectedIDs.stream()
+                .map(DataSetFilePermId::getFilePath)
+                .collect(Collectors.toList());
+
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".html")));
+
+        List<String> foundPermIDs = foundRegexFilteredIDs.stream()
+                .limit(5)
+                .map(DataSetFilePermId::toString)
+                .collect(Collectors.toList());
+
+        List<String> foundIDsFilepath = foundRegexFilteredIDs.stream()
+                .limit(5)
+                .map(DataSetFilePermId::getFilePath)
+                .collect(Collectors.toList());
+
+        // all DataSetPermIDs matching?
+        assertEquals(expectedPermIDs, foundPermIDs);
+
+        // all filePaths matching?
+        assertEquals(expectedIDsFilePath, foundIDsFilepath);
+
+        // correct number of IDs found?
+        assertThat(foundRegexFilteredIDs.size()).isAtLeast(41); // 06.11.2018
     }
 
 }

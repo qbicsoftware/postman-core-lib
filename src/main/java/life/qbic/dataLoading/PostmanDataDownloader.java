@@ -194,7 +194,6 @@ public class PostmanDataDownloader {
                     System.out.print("\n");
                     initialStream.close();
 
-                    //flush OutputStream to write any buffered data to file
                     os.flush();
                     os.close();
                 }
@@ -241,7 +240,6 @@ public class PostmanDataDownloader {
                     System.out.print("\n");
                     initialStream.close();
 
-                    //flush OutputStream to write any buffered data to file
                     os.flush();
                     os.close();
                 }
