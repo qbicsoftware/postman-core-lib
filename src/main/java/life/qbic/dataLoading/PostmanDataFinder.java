@@ -10,6 +10,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriter
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import life.qbic.util.RegexFilterDownloadUtil;
@@ -114,7 +115,7 @@ public class PostmanDataFinder {
      * @param regexPatterns
      * @return
      */
-    List<IDataSetFileId> findAllRegexFilteredIDs(final String ident, final List<String> regexPatterns) {
+    List<DataSetFilePermId> findAllRegexFilteredIDs(final String ident, final List<String> regexPatterns) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
 
         return RegexFilterDownloadUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
@@ -127,9 +128,9 @@ public class PostmanDataFinder {
      * @param suffixes
      * @return
      */
-    List<IDataSetFileId> findAllSuffixFilteredIDs(final String ident, final List<String> suffixes) {
+    List<DataSetFilePermId> findAllSuffixFilteredIDs(final String ident, final List<String> suffixes) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
-        List<IDataSetFileId> allFileIDs = new ArrayList<>();
+        List<DataSetFilePermId> allFileIDs = new ArrayList<>();
 
         for (DataSet ds : allDatasets) {
             // we cannot access the files directly of the datasets -> we need to query for the files first using the datasetID
@@ -138,7 +139,7 @@ public class PostmanDataFinder {
             SearchResult<DataSetFile> result = dataStoreServer.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
             final List<DataSetFile> files = result.getObjects();
 
-            List<IDataSetFileId> fileIds = new ArrayList<>();
+            List<DataSetFilePermId> fileIds = new ArrayList<>();
 
             // only add to the result if the suffix matches
             for (DataSetFile file : files)
@@ -155,5 +156,7 @@ public class PostmanDataFinder {
 
         return allFileIDs;
     }
+
+
 
 }

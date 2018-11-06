@@ -9,19 +9,23 @@ import life.qbic.dataLoading.PostmanDataFinder;
 import life.qbic.io.parser.PostmanPropertiesParser;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Super class for all tests which require A PostmanSession
  * Furthermore, objects for all DataLoading operations are created and provided
  */
-@Ignore
 public class SuperPostmanSessionSetupManagerForTests {
 
     private static PostmanDataFinder postmanDataFinder;
     private static PostmanDataDownloader postmanDataDownloader;
     private static PostmanDataStreamProvider postmanDataStreamProvider;
+    private static PostmanSessionManager postmanSessionManager;
 
     /**
      * setups PostmanSessionManager
@@ -33,7 +37,7 @@ public class SuperPostmanSessionSetupManagerForTests {
     @BeforeClass
     public static void setupBeforeClass() throws IOException, PostmanOpenBISLoginFailedException {
         PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
-        PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
+        postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
         postmanSessionManager.loginToOpenBIS(postmanConfig);
 
         // create all dataloading objects
@@ -52,6 +56,24 @@ public class SuperPostmanSessionSetupManagerForTests {
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
+    }
+
+    /**
+     * does connection exist after logging in?
+     */
+    @Test
+    public void testLoggedIn() {
+        assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+    }
+
+    /**
+     * is connection closed after logging out?
+     */
+    @Test
+    public void testLogout() {
+        assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+        postmanSessionManager.getApplicationServer().logout(postmanSessionManager.getSessionToken());
+        assertFalse(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
     }
 
     protected static PostmanDataFinder getPostmanDataFinder() {

@@ -4,6 +4,10 @@
 
 Postman Core Library, version 1.0.0-SNAPSHOT - Provides functionality for the download of OpenBIS files and datasets
 
+## Development
+mvn test
+mvn integration-test
+
 ## Author
 Created by Lukas Heumos (lukas.heumos@student.uni-tuebingen.de).
 

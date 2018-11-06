@@ -21,8 +21,6 @@ public class PostmanDataDownloader {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloader.class);
 
-    private String user;
-    private String password;
     private IApplicationServerApi applicationServer;
     private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
@@ -40,7 +38,7 @@ public class PostmanDataDownloader {
      * @param filterType
      */
     public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
-                              String sessionToken, int bufferSize, String filterType) {
+                                 String sessionToken, int bufferSize, String filterType) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
@@ -71,7 +69,10 @@ public class PostmanDataDownloader {
      * @param postmanDataDownloader
      * @throws IOException
      */
-    public void downloadRequestedFilesOfDatasets(final List<String> IDs, final PostmanFilterOptions postmanFilterOptions, final PostmanDataDownloader postmanDataDownloader) throws IOException {
+    public void downloadRequestedFilesOfDatasets(final List<String> IDs,
+                                                 final PostmanFilterOptions postmanFilterOptions,
+                                                 final PostmanDataDownloader postmanDataDownloader,
+                                                 final String outputPath) throws IOException {
         PostmanDataFinder postmanDataFinder = new PostmanDataFinder(applicationServer,
                 dataStoreServer,
                 sessionToken,
@@ -84,21 +85,21 @@ public class PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<IDataSetFileId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
-                downloadFilesFilteredByIDs(ident, foundSuffixFilteredIDs);
+                downloadFilesFilteredByIDs(ident, foundSuffixFilteredIDs, outputPath);
             }
             // a regex pattern was provided -> only download files which contain the regex pattern
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<IDataSetFileId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
-                downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs);
+                downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
             }
         } else {
             // no suffix or regex was supplied -> download all datasets
@@ -112,7 +113,7 @@ public class PostmanDataDownloader {
                     LOG.info("Initialize download ...");
                     int datasetDownloadReturnCode = -1;
                     try {
-                        datasetDownloadReturnCode = postmanDataDownloader.downloadDataset(foundDataSets);
+                        datasetDownloadReturnCode = postmanDataDownloader.downloadDataset(foundDataSets, outputPath);
                     } catch (NullPointerException e) {
                         LOG.error("Datasets were found by the application server, but could not be found on the datastore server for "
                                 + ident + "." + " Try to supply the correct datastore server using a config file!");
@@ -139,12 +140,12 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    private void downloadFilesFilteredByIDs(final String ident, final List<IDataSetFileId> foundFilteredIDs) throws IOException {
+    private void downloadFilesFilteredByIDs(final String ident, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
             try {
-                filesDownloadReturnCode = downloadFilesByID(foundFilteredIDs);
+                filesDownloadReturnCode = downloadFilesByID(foundFilteredIDs, outputPath);
             } catch (NullPointerException e) {
                 LOG.error("Datasets were found by the application server, but could not be found on the datastore server for "
                         + ident + "." + " Try to supply the correct datastore server using a config file!");
@@ -164,10 +165,11 @@ public class PostmanDataDownloader {
      * Downloads files that have been found after filtering for suffixes/regexPatterns by a list of supplied IDs
      *
      * @param filteredIDs
+     * @param outputPath path to write all downloaded files to
      * @return exitcode
      * @throws IOException
      */
-    private int downloadFilesByID(final List<IDataSetFileId> filteredIDs) throws IOException{
+    private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);
@@ -181,8 +183,9 @@ public class PostmanDataDownloader {
                 if (file.getDataSetFile().getFileLength() > 0) {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
-                    OutputStream os = new FileOutputStream(System.getProperty("user.dir") + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
+                    OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
+                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ?
+                            (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
@@ -194,7 +197,6 @@ public class PostmanDataDownloader {
                     System.out.print("\n");
                     initialStream.close();
 
-                    //flush OutputStream to write any buffered data to file
                     os.flush();
                     os.close();
                 }
@@ -210,9 +212,10 @@ public class PostmanDataDownloader {
      * There was no filtering applied here!
      *
      * @param dataSetList A list of datasets
+     * @param outputPath path to write all downloaded files to
      * @return 0 if successful, 1 else
      */
-    private int downloadDataset(final List<DataSet> dataSetList) throws IOException{
+    private int downloadDataset(final List<DataSet> dataSetList, final String outputPath) throws IOException{
         for (DataSet dataset : dataSetList) {
             DataSetPermId permID = dataset.getPermId();
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
@@ -228,7 +231,7 @@ public class PostmanDataDownloader {
                 if (file.getDataSetFile().getFileLength() > 0) {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
-                    OutputStream os = new FileOutputStream(System.getProperty("user.dir") + File.separator + lastOne);
+                    OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
@@ -241,7 +244,6 @@ public class PostmanDataDownloader {
                     System.out.print("\n");
                     initialStream.close();
 
-                    //flush OutputStream to write any buffered data to file
                     os.flush();
                     os.close();
                 }

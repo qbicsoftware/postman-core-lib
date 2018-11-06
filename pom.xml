@@ -125,6 +125,31 @@
                 </executions>
             </plugin>
 
+            <!-- Setup for Integration tasks-->
+            <!-- adds goal integration-test-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.1</version>
+                <configuration>
+                    <groups>life.qbic.testConfigurations.IntegrationTest</groups>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <goals>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- The following maven antrun plugin is required for the integration of groovy code into java code -->
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -182,6 +207,7 @@
                         <version>${groovy.version}</version>
                         <classifier>indy</classifier>
                     </dependency>
+
                 </dependencies>
             </plugin>
 
