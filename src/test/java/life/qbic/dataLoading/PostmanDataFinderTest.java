@@ -60,7 +60,6 @@ public class PostmanDataFinderTest extends SuperPostmanSessionSetupManagerForTes
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        //
         List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
 
         List<String> foundPermIDs = foundRegexFilteredIDs.stream()
@@ -118,6 +117,9 @@ public class PostmanDataFinderTest extends SuperPostmanSessionSetupManagerForTes
 
         // all filePaths matching?
         assertEquals(expectedIDsFilePath, foundIDsFilepath);
+
+        // correct number of IDs found?
+        assertThat(foundRegexFilteredIDs.size()).isAtLeast(41); // 06.11.2018
     }
 
     @Test
@@ -130,8 +132,38 @@ public class PostmanDataFinderTest extends SuperPostmanSessionSetupManagerForTes
 
     @Test
     public void testFindAllSuffixFilteredIDs() {
+        List<DataSetFilePermId> expectedIDs = new ArrayList<DataSetFilePermId>() {
+            {
+                add(new DataSetFilePermId(new DataSetPermId("20170214193727212-160772"), "original/NGSQTGPR032A0_workflow_results/2017_02_14_19_25_59_coverage_plot.pdf"));
+            }
+        };
 
+        List<String> expectedPermIDs = expectedIDs.stream()
+                .map(DataSetFilePermId::toString)
+                .collect(Collectors.toList());
+
+        List<String> expectedIDsFilePath = expectedIDs.stream()
+                .map(DataSetFilePermId::getFilePath)
+                .collect(Collectors.toList());
+
+        List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
+
+        List<String> foundPermIDs = foundSuffixFilteredIDs.stream()
+                .map(DataSetFilePermId::toString)
+                .collect(Collectors.toList());
+
+        List<String> foundIDsFilepath = foundSuffixFilteredIDs.stream()
+                .map(DataSetFilePermId::getFilePath)
+                .collect(Collectors.toList());
+
+        // correct number of IDs found?
+        assertEquals(expectedIDs.size(), foundSuffixFilteredIDs.size());
+
+        // all DataSetPermIDs matching?
+        assertEquals(expectedPermIDs, foundPermIDs);
+
+        // all filePaths matching?
+        assertEquals(expectedIDsFilePath, foundIDsFilepath);
     }
-
 
 }
