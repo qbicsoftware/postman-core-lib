@@ -66,18 +66,12 @@ public class PostmanDataDownloader {
      * checks whether any filtering option (suffix or regex) has been passed and applies filtering if needed
      * @param IDs
      * @param postmanFilterOptions
-     * @param postmanDataDownloader
      * @throws IOException
      */
     public void downloadRequestedFilesOfDatasets(final List<String> IDs,
                                                  final PostmanFilterOptions postmanFilterOptions,
-                                                 final PostmanDataDownloader postmanDataDownloader,
+                                                 final PostmanDataFinder postmanDataFinder,
                                                  final String outputPath) throws IOException {
-        PostmanDataFinder postmanDataFinder = new PostmanDataFinder(applicationServer,
-                dataStoreServer,
-                sessionToken,
-                filterType);
-
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
@@ -113,7 +107,7 @@ public class PostmanDataDownloader {
                     LOG.info("Initialize download ...");
                     int datasetDownloadReturnCode = -1;
                     try {
-                        datasetDownloadReturnCode = postmanDataDownloader.downloadDataset(foundDataSets, outputPath);
+                        datasetDownloadReturnCode = downloadDataset(foundDataSets, outputPath);
                     } catch (NullPointerException e) {
                         LOG.error("Datasets were found by the application server, but could not be found on the datastore server for "
                                 + ident + "." + " Try to supply the correct datastore server using a config file!");

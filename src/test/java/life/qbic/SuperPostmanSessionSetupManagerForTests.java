@@ -22,10 +22,10 @@ import static org.junit.Assert.assertTrue;
  */
 public class SuperPostmanSessionSetupManagerForTests {
 
+    private static PostmanSessionManager postmanSessionManager;
     private static PostmanDataFinder postmanDataFinder;
     private static PostmanDataDownloader postmanDataDownloader;
     private static PostmanDataStreamProvider postmanDataStreamProvider;
-    private static PostmanSessionManager postmanSessionManager;
 
     /**
      * setups PostmanSessionManager
@@ -80,12 +80,14 @@ public class SuperPostmanSessionSetupManagerForTests {
         return postmanDataFinder;
     }
 
-    public static PostmanDataDownloader getPostmanDataDownloader() {
+    protected static PostmanDataDownloader getPostmanDataDownloader() {
         return postmanDataDownloader;
     }
 
-    public static PostmanDataStreamProvider getPostmanDataStreamProvider() {
+    protected static PostmanDataStreamProvider getPostmanDataStreamProvider() {
         return postmanDataStreamProvider;
     }
+
+
 }
 

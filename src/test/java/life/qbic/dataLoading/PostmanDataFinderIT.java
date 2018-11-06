@@ -121,7 +121,9 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".html")));
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(
+                "/CONFERENCE_DEMO/QTGPR014A2",
+                new ArrayList<>(Collections.singleton(".html")));
 
         List<String> foundPermIDs = foundRegexFilteredIDs.stream()
                 .limit(5)
@@ -246,7 +248,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
         assertEquals(expectedIDsFilePath, foundIDsFilepath);
 
         // correct number of IDs found?
-        assertThat(foundRegexFilteredIDs.size()).isAtLeast(41); // 06.11.2018
+        assertThat(foundRegexFilteredIDs.size()).isAtLeast(42); // 06.11.2018
     }
 
 }
