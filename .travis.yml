@@ -24,14 +24,14 @@ deploy:
 - skip_cleanup: true
   provider: script
   script: mvn --quiet --activate-profiles development-build,!release-build --settings
-    .travis.settings.xml deploy
+    .travis.settings.xml deploy -DskipITs
   on:
     branch: development
     condition: '"$TRAVIS_EVENT_TYPE" = "push"'
 - skip_cleanup: true
   provider: script
   script: mvn --quiet --activate-profiles !development-build,release-build --settings
-    .travis.settings.xml deploy
+    .travis.settings.xml deploy -DskipITs
   on:
     branch: master
     condition: '"$TRAVIS_EVENT_TYPE" = "push"'
