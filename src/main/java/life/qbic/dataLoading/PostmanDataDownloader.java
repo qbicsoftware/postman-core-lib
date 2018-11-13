@@ -22,10 +22,8 @@ public class PostmanDataDownloader {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloader.class);
 
-    private IApplicationServerApi applicationServer;
     private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
-    private String filterType;
 
     private final int DEFAULTBUFFERSIZE = 1024;
     private int buffersize = DEFAULTBUFFERSIZE;
@@ -33,31 +31,18 @@ public class PostmanDataDownloader {
 
     /**
      *
-     * @param applicationServer
      * @param dataStoreServer
      * @param bufferSize
-     * @param filterType
      */
-    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
-                                 String sessionToken, int bufferSize, String filterType) {
-        this.applicationServer = applicationServer;
-        this.dataStoreServer = dataStoreServer;
-        this.sessionToken = sessionToken;
-        this.buffersize = bufferSize;
-        this.filterType = filterType;
-    }
-
-    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+    public PostmanDataDownloader(IDataStoreServerApi dataStoreServer,
                                  String sessionToken, int bufferSize) {
-        this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
         this.buffersize = bufferSize;
     }
 
-    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+    public PostmanDataDownloader(IDataStoreServerApi dataStoreServer,
                                  String sessionToken) {
-        this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
     }
@@ -182,8 +167,8 @@ public class PostmanDataDownloader {
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
-                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ?
-                            (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
+                    int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
+                            (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
@@ -232,7 +217,7 @@ public class PostmanDataDownloader {
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
-                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
+                    int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer

@@ -66,9 +66,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
         HashMap<String, Integer> foundFileExtensions = new HashMap<>();
 
         expectedFileExtensions.keySet()
-                .forEach(s -> {
-                    foundFileExtensions.put(s, countFileOfExtensionInDirectory(OUTPUTPATH, s));
-                });
+                .forEach(s -> foundFileExtensions.put(s, countFileOfExtensionInDirectory(OUTPUTPATH, s)));
 
         // do the file extensions of all downloaded files match?
         assertEquals(expectedFileExtensions, foundFileExtensions); // 06.11.2018
@@ -83,6 +81,9 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
     public void testDownloadFilesFilteredByIDs() {
         final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesFilteredByIDs";
         createFolderIfNotExisting(OUTPUTPATH);
+
+
+
         // TODO
     }
 
@@ -100,7 +101,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
         // TODO
     }
 
-    //TODO I should test this as well - behold - they're not part of Test, but IT
+    //TODO I should test this as well - behold - they're not part of IT, but Test
     private static void createFolderIfNotExisting(final String directoryPath) {
         new File(directoryPath).mkdirs();
     }
