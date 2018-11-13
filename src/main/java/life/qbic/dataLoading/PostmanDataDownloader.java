@@ -10,6 +10,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import life.qbic.core.PostmanFilterOptions;
+import life.qbic.util.ProgressBar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -21,10 +22,8 @@ public class PostmanDataDownloader {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloader.class);
 
-    private IApplicationServerApi applicationServer;
     private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
-    private String filterType;
 
     private final int DEFAULTBUFFERSIZE = 1024;
     private int buffersize = DEFAULTBUFFERSIZE;
@@ -32,31 +31,18 @@ public class PostmanDataDownloader {
 
     /**
      *
-     * @param applicationServer
      * @param dataStoreServer
      * @param bufferSize
-     * @param filterType
      */
-    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
-                                 String sessionToken, int bufferSize, String filterType) {
-        this.applicationServer = applicationServer;
-        this.dataStoreServer = dataStoreServer;
-        this.sessionToken = sessionToken;
-        this.buffersize = bufferSize;
-        this.filterType = filterType;
-    }
-
-    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+    public PostmanDataDownloader(IDataStoreServerApi dataStoreServer,
                                  String sessionToken, int bufferSize) {
-        this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
         this.buffersize = bufferSize;
     }
 
-    public PostmanDataDownloader(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+    public PostmanDataDownloader(IDataStoreServerApi dataStoreServer,
                                  String sessionToken) {
-        this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
     }
@@ -66,18 +52,12 @@ public class PostmanDataDownloader {
      * checks whether any filtering option (suffix or regex) has been passed and applies filtering if needed
      * @param IDs
      * @param postmanFilterOptions
-     * @param postmanDataDownloader
      * @throws IOException
      */
     public void downloadRequestedFilesOfDatasets(final List<String> IDs,
                                                  final PostmanFilterOptions postmanFilterOptions,
-                                                 final PostmanDataDownloader postmanDataDownloader,
+                                                 final PostmanDataFinder postmanDataFinder,
                                                  final String outputPath) throws IOException {
-        PostmanDataFinder postmanDataFinder = new PostmanDataFinder(applicationServer,
-                dataStoreServer,
-                sessionToken,
-                filterType);
-
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
@@ -113,7 +93,7 @@ public class PostmanDataDownloader {
                     LOG.info("Initialize download ...");
                     int datasetDownloadReturnCode = -1;
                     try {
-                        datasetDownloadReturnCode = postmanDataDownloader.downloadDataset(foundDataSets, outputPath);
+                        datasetDownloadReturnCode = downloadDataset(foundDataSets, outputPath);
                     } catch (NullPointerException e) {
                         LOG.error("Datasets were found by the application server, but could not be found on the datastore server for "
                                 + ident + "." + " Try to supply the correct datastore server using a config file!");
@@ -140,7 +120,9 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    private void downloadFilesFilteredByIDs(final String ident, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) throws IOException {
+    public void downloadFilesFilteredByIDs(final String ident,
+                                            final List<DataSetFilePermId> foundFilteredIDs,
+                                            final String outputPath) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
@@ -169,7 +151,7 @@ public class PostmanDataDownloader {
      * @return exitcode
      * @throws IOException
      */
-    private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
+    public int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);
@@ -184,16 +166,18 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ?
-                            (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
+                    ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
+                    int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
+                            (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
                     while ((bytesRead = initialStream.read(buffer)) != -1) {
+                        progressBar.updateProgress(bufferSize);
                         os.write(buffer, 0, bytesRead);
                         os.flush();
-
                     }
+
                     System.out.print("\n");
                     initialStream.close();
 
@@ -232,11 +216,13 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
-                    int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
+                    ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
+                    int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
                     while ((bytesRead = initialStream.read(buffer)) != -1) {
+                        progressBar.updateProgress(bufferSize);
                         os.write(buffer, 0, bytesRead);
                         os.flush();
 

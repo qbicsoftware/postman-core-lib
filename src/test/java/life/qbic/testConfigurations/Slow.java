@@ -1,3 +1,3 @@
 package life.qbic.testConfigurations;
 
-public class Slow { }
+public interface Slow { }

@@ -3,7 +3,7 @@ package life.qbic.dataLoading;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForTests;
+import life.qbic.SuperPostmanSessionSetupManagerForTestsIT;
 import life.qbic.testConfigurations.IntegrationTest;
 import life.qbic.testConfigurations.Slow;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests {
+public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTestsIT {
 
     private static PostmanDataFinder postmanDataFinder = getPostmanDataFinder();
 
@@ -121,7 +121,9 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".html")));
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(
+                "/CONFERENCE_DEMO/QTGPR014A2",
+                new ArrayList<>(Collections.singleton(".html")));
 
         List<String> foundPermIDs = foundRegexFilteredIDs.stream()
                 .limit(5)
@@ -246,7 +248,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForTests
         assertEquals(expectedIDsFilePath, foundIDsFilepath);
 
         // correct number of IDs found?
-        assertThat(foundRegexFilteredIDs.size()).isAtLeast(41); // 06.11.2018
+        assertThat(foundRegexFilteredIDs.size()).isAtLeast(42); // 06.11.2018
     }
 
 }

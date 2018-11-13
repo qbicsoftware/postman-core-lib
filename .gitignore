@@ -29,3 +29,6 @@ src/main/webapp/VAADIN/widgetsets
 # properties file
 src/main/resources/qbicPropertiesFile.conf
 src/test/resources/qbicPropertiesFile.conf
+
+# Integration tests output files
+src/test/ITOutput

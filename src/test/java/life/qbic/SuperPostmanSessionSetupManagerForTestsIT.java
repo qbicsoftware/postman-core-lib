@@ -20,12 +20,12 @@ import static org.junit.Assert.assertTrue;
  * Super class for all tests which require A PostmanSession
  * Furthermore, objects for all DataLoading operations are created and provided
  */
-public class SuperPostmanSessionSetupManagerForTests {
+public class SuperPostmanSessionSetupManagerForTestsIT {
 
+    private static PostmanSessionManager postmanSessionManager;
     private static PostmanDataFinder postmanDataFinder;
     private static PostmanDataDownloader postmanDataDownloader;
     private static PostmanDataStreamProvider postmanDataStreamProvider;
-    private static PostmanSessionManager postmanSessionManager;
 
     /**
      * setups PostmanSessionManager
@@ -47,7 +47,6 @@ public class SuperPostmanSessionSetupManagerForTests {
                 postmanSessionManager.getSessionToken()
         );
         postmanDataDownloader = new PostmanDataDownloader(
-                postmanSessionManager.getApplicationServer(),
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
@@ -80,12 +79,14 @@ public class SuperPostmanSessionSetupManagerForTests {
         return postmanDataFinder;
     }
 
-    public static PostmanDataDownloader getPostmanDataDownloader() {
+    protected static PostmanDataDownloader getPostmanDataDownloader() {
         return postmanDataDownloader;
     }
 
-    public static PostmanDataStreamProvider getPostmanDataStreamProvider() {
+    protected static PostmanDataStreamProvider getPostmanDataStreamProvider() {
         return postmanDataStreamProvider;
     }
+
+
 }
 
