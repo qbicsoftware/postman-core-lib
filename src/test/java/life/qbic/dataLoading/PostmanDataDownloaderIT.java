@@ -3,6 +3,8 @@ package life.qbic.dataLoading;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.SuperPostmanSessionSetupManagerForTests;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.testConfigurations.IntegrationTest;
@@ -170,47 +172,67 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
     }
 
     @Test
-    public void testDownloadFilesFilteredByIDsSuffix() {
-        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesFilteredByIDs/suffix";
+    public void testDownloadFilesFilteredByIDs() throws IOException {
+        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesFilteredByIDs";
         createFolderIfNotExisting(OUTPUTPATH);
         List<String> IDsToDownload = new ArrayList<String>() {
             {
                 add("/CONFERENCE_DEMO/QTGPR014A2");
             }
         };
-        final long expectedNumberOfFoundDatasets = 0;
+        List<DataSetFilePermId> expectedIDs = new ArrayList<DataSetFilePermId>() {
+            {
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00119_SRR099967_1.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00119_SRR099967_2.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00121_ERR031964_1.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00121_ERR031964_2.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00638_SRR070804_1.html"));
+            }
+        };
 
-//        postmanDataDownloader.downloadFilesFilteredByIDs(IDsToDownload,
-//                                                         postmanFilterOptions,
-//                                                         OUTPUTPATH);
+        final long expectedNumberOfFiles = 5;
+
+        postmanDataDownloader.downloadFilesFilteredByIDs(IDsToDownload.get(0),
+                                                         expectedIDs,
+                                                         OUTPUTPATH);
+
+        final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
+
+        // all files downloaded?
+        assertThat(foundNumberOfFiles).isAtLeast(expectedNumberOfFiles); // 06.11.2018
+
+        HashMap<String, Integer> expectedFileExtensions = new HashMap<String, Integer>() {
+            {
+                put("html", 5);
+            }
+        };
+
+        HashMap<String, Integer> foundFileExtensions = new HashMap<>();
+
+        expectedFileExtensions.keySet()
+                .forEach(s -> foundFileExtensions.put(s, countFileOfExtensionInDirectory(OUTPUTPATH, s)));
 
 
+        // do the file extensions of all downloaded files match?
+        assertEquals(expectedFileExtensions, foundFileExtensions); // 06.11.2018
 
-        // TODO
-    }
+        final long expectedSumFilesSize = 1636834; // 13.11.2018
 
-    @Test
-    public void testDownloadForFilesFilteredByIDsRegex() {
-        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesFilteredByIDs/regex";
-        createFolderIfNotExisting(OUTPUTPATH);
-
+        // is the file size of all downloaded files large enough?
+        assertThat(getFileSizeOfDirectory(OUTPUTPATH)).isAtLeast(expectedSumFilesSize);
     }
 
     @Test
     public void testDownloadFilesByID() {
-        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesByID";
-        createFolderIfNotExisting(OUTPUTPATH);
-        // TODO
+        // tested via public interface of downloadFilesFilteredByIDs
     }
 
     @Test
     public void testDownloadDataset() {
-        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadDataset";
-        createFolderIfNotExisting(OUTPUTPATH);
-        // TODO
+        // tested via public interfaces of all methods of PostmanDataDownloader
     }
 
-    //TODO I should test this as well - behold - they're not part of IT, but Test
+    //TODO I could test those as well - behold - they're not necessarily part of IT, but Test
     private static void createFolderIfNotExisting(final String directoryPath) {
         new File(directoryPath).mkdirs();
     }

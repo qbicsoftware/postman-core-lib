@@ -151,7 +151,7 @@ public class PostmanDataDownloader {
      * @return exitcode
      * @throws IOException
      */
-    private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
+    public int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);
