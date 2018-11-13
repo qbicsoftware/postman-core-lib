@@ -10,6 +10,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import life.qbic.core.PostmanFilterOptions;
+import life.qbic.util.ProgressBar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -134,7 +135,9 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    private void downloadFilesFilteredByIDs(final String ident, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) throws IOException {
+    private void downloadFilesFilteredByIDs(final String ident,
+                                            final List<DataSetFilePermId> foundFilteredIDs,
+                                            final String outputPath) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
@@ -178,12 +181,14 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
+                    ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ?
                             (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
                     while ((bytesRead = initialStream.read(buffer)) != -1) {
+                        progressBar.updateProgress(bufferSize);
                         os.write(buffer, 0, bytesRead);
                         os.flush();
 
@@ -226,11 +231,13 @@ public class PostmanDataDownloader {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
+                    ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < DEFAULTBUFFERSIZE) ? (int) file.getDataSetFile().getFileLength() : DEFAULTBUFFERSIZE;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
                     while ((bytesRead = initialStream.read(buffer)) != -1) {
+                        progressBar.updateProgress(bufferSize);
                         os.write(buffer, 0, bytesRead);
                         os.flush();
 

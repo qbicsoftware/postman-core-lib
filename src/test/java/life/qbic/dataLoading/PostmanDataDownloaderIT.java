@@ -32,6 +32,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
     @Test
     public void testDownloadRequestedFilesOfDatasets() throws IOException {
         final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadRequestedFilesOfDatasets";
+        createFolderIfNotExisting(OUTPUTPATH);
         List<String> IDsToDownload = new ArrayList<String>() {
             {
                 add("/CONFERENCE_DEMO/QTGPR014A2");
@@ -80,17 +81,28 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
 
     @Test
     public void testDownloadFilesFilteredByIDs() {
-
+        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesFilteredByIDs";
+        createFolderIfNotExisting(OUTPUTPATH);
+        // TODO
     }
 
     @Test
     public void testDownloadFilesByID() {
-
+        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadFilesByID";
+        createFolderIfNotExisting(OUTPUTPATH);
+        // TODO
     }
 
     @Test
     public void testDownloadDataset() {
+        final String OUTPUTPATH = DOWNLOADED_FILES_OUTPUT_PATH + File.separator + "testDownloadDataset";
+        createFolderIfNotExisting(OUTPUTPATH);
+        // TODO
+    }
 
+    //TODO I should test this as well - behold - they're not part of Test, but IT
+    private static void createFolderIfNotExisting(final String directoryPath) {
+        new File(directoryPath).mkdirs();
     }
 
     private static long countFilesInDirectory(final String directoryPath) throws IOException {
