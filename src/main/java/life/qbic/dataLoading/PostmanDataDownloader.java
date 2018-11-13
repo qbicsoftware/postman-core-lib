@@ -120,7 +120,7 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    private void downloadFilesFilteredByIDs(final String ident,
+    public void downloadFilesFilteredByIDs(final String ident,
                                             final List<DataSetFilePermId> foundFilteredIDs,
                                             final String outputPath) throws IOException {
         if (foundFilteredIDs.size() > 0) {
@@ -176,8 +176,8 @@ public class PostmanDataDownloader {
                         progressBar.updateProgress(bufferSize);
                         os.write(buffer, 0, bytesRead);
                         os.flush();
-
                     }
+
                     System.out.print("\n");
                     initialStream.close();
 

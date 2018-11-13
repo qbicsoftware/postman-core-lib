@@ -47,7 +47,6 @@ public class SuperPostmanSessionSetupManagerForTests {
                 postmanSessionManager.getSessionToken()
         );
         postmanDataDownloader = new PostmanDataDownloader(
-                postmanSessionManager.getApplicationServer(),
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );

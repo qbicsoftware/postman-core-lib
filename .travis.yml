@@ -1,7 +1,9 @@
 sudo: false
 dist: trusty
 language: java
-jdk: openjdk8
+jdk:
+  - openjdk8
+  - openjdk11
 cache:
   directories:
   - $HOME/.m2/repository
@@ -14,7 +16,7 @@ install: true
 before_script: if [ "$VAADIN_CHARTS_LICENSE_CODE" != "" ]; then echo "$VAADIN_CHARTS_LICENSE_CODE"
   > ~/.vaadin.charts.developer.license; fi;
 script: mvn --quiet --activate-profiles !development-build,!release-build --settings
-  .travis.settings.xml clean cobertura:cobertura install
+  .travis.settings.xml clean cobertura:cobertura test
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 - mvn --quiet --activate-profiles !development-build,!release-build --settings .travis.settings.xml
