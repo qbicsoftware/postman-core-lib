@@ -12,9 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.InputStream;
 import java.io.SequenceInputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class PostmanDataStreamProvider {
 
@@ -95,15 +93,15 @@ public class PostmanDataStreamProvider {
      * @param postmanDataFinder
      * @return
      */
-    public List<List<InputStream>> provideInputStreamPerID(final List<String> IDs,
-                                                     final PostmanFilterOptions postmanFilterOptions,
-                                                     final PostmanDataFinder postmanDataFinder) {
+    public Map<String, List<InputStream>> provideInputStreamPerID(final List<String> IDs,
+                                                                  final PostmanFilterOptions postmanFilterOptions,
+                                                                  final PostmanDataFinder postmanDataFinder) {
         LOG.debug(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
         // a suffix was provided -> only provide stream for files which contain the suffix string
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
-            List<List<InputStream>> inputStreams = new ArrayList<>();
+            Map<String, List<InputStream>> IDToInputStream = new HashMap<>();
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
@@ -111,14 +109,14 @@ public class PostmanDataStreamProvider {
 
                 LOG.debug(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
-                inputStreams.add(getDatasetStreamFromFilteredIdsPerID(foundSuffixFilteredIDs));
+                IDToInputStream.put(ident, getDatasetStreamFromFilteredIdsPerID(foundSuffixFilteredIDs));
             }
 
-            return inputStreams;
+            return IDToInputStream;
 
             // a regex pattern was provided -> only provide stream for files which contain the regex pattern
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
-            List<List<InputStream>> inputStreams = new ArrayList<>();
+            Map<String, List<InputStream>> IDToInputStream = new HashMap<>();
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
@@ -126,14 +124,14 @@ public class PostmanDataStreamProvider {
 
                 LOG.debug(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
-                inputStreams.add(getDatasetStreamFromFilteredIdsPerID(foundRegexFilteredIDs));
+                IDToInputStream.put(ident, getDatasetStreamFromFilteredIdsPerID(foundRegexFilteredIDs));
             }
 
-            return inputStreams;
+            return IDToInputStream;
 
             // no suffix or regex was supplied -> provide stream for all datasets
         } else {
-            List<List<InputStream>> inputStreams = new ArrayList<>();
+            Map<String, List<InputStream>> IDToInputStream = new HashMap<>();
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
@@ -141,10 +139,10 @@ public class PostmanDataStreamProvider {
 
                 LOG.debug(String.format("Number of datasets found: %s", foundDataSets.size()));
 
-                inputStreams.add(getDatasetStreamFromDatasetListPerID(foundDataSets));
+                IDToInputStream.put(ident, getDatasetStreamFromDatasetListPerID(foundDataSets));
             }
 
-            return inputStreams;
+            return IDToInputStream;
         }
     }
 

@@ -1,5 +1,7 @@
 package life.qbic;
 
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import life.qbic.dataLoading.PostmanDataDownloader;
 import life.qbic.dataLoading.PostmanDataStreamProvider;
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
@@ -7,9 +9,9 @@ import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
 import life.qbic.dataLoading.PostmanDataFinder;
 import life.qbic.io.parser.PostmanPropertiesParser;
+import life.qbic.util.ProgressBar;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.*;
@@ -17,6 +19,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertFalse;
@@ -37,7 +42,7 @@ public class SuperPostmanSessionSetupManagerForTestsIT {
      * setups PostmanSessionManager
      * logs into openBIS
      *
-     * @throws IOException if unable to parse Properties
+     * @throws IOException                        if unable to parse Properties
      * @throws PostmanOpenBISLoginFailedException if anything went wrong while logging in
      */
     @BeforeClass
@@ -82,22 +87,43 @@ public class SuperPostmanSessionSetupManagerForTestsIT {
 
     // TODO maybe add this stuff to our core lib
 
+    protected void downloadInputStream(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
+        int buffersize = 1024;
+        for (Map.Entry<String, List<InputStream>> entry : IDToInputStreams.entrySet()) {
+            for (InputStream inputStream : entry.getValue()) {
+                DataSetFileDownloadReader reader = new DataSetFileDownloadReader(inputStream);
+                DataSetFileDownload file;
 
-    protected void downloadInputStream(final InputStream inputStream, final String outputPath) throws IOException {
-        final String outputFile = outputPath + "/bla";
-        byte[] buffer = new byte[8 * 1024];
+                while ((file = reader.read()) != null) {
+                    InputStream initialStream = file.getInputStream();
 
-        try {
-            OutputStream output = new FileOutputStream(outputFile);
-            int bytesRead;
-            while ((bytesRead = inputStream.read(buffer)) != -1) {
-                output.write(buffer, 0, bytesRead);
+                    if (file.getDataSetFile().getFileLength() > 0) {
+                        String[] splitted = file.getDataSetFile().getPath().split("/");
+                        String lastOne = splitted[splitted.length - 1];
+                        OutputStream os = new FileOutputStream(outputPath+ File.separator + lastOne);
+                        ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
+                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
+                                (int) file.getDataSetFile().getFileLength() : buffersize;
+                        byte[] buffer = new byte[bufferSize];
+                        int bytesRead;
+                        //read from is to buffer
+                        while ((bytesRead = initialStream.read(buffer)) != -1) {
+                            progressBar.updateProgress(bufferSize);
+                            os.write(buffer, 0, bytesRead);
+                            os.flush();
+                        }
+
+                        System.out.print("\n");
+                        initialStream.close();
+
+                        os.flush();
+                        os.close();
+                    }
+
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            inputStream.close();
         }
+
     }
 
     protected static void createFolderIfNotExisting(final String directoryPath) {
