@@ -1,9 +1,9 @@
 package life.qbic.dataLoading;
 
-import life.qbic.SuperPostmanSessionSetupManagerForTests;
+import life.qbic.SuperPostmanSessionSetupManagerForTestsIT;
 import org.junit.Test;
 
-public class PostmanDataStreamProviderTest extends SuperPostmanSessionSetupManagerForTests {
+public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForTestsIT {
 
     @Test
     public void testProvideInputStreamForIds() {

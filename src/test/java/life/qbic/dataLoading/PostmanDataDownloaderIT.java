@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForTests;
+import life.qbic.SuperPostmanSessionSetupManagerForTestsIT;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.testConfigurations.IntegrationTest;
 import life.qbic.testConfigurations.Slow;
@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForTests {
+public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForTestsIT {
 
     private static PostmanDataDownloader postmanDataDownloader = getPostmanDataDownloader();
     private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput";

@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  * Super class for all tests which require A PostmanSession
  * Furthermore, objects for all DataLoading operations are created and provided
  */
-public class SuperPostmanSessionSetupManagerForTests {
+public class SuperPostmanSessionSetupManagerForTestsIT {
 
     private static PostmanSessionManager postmanSessionManager;
     private static PostmanDataFinder postmanDataFinder;
