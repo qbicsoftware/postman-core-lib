@@ -7,11 +7,17 @@ import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
 import life.qbic.dataLoading.PostmanDataFinder;
 import life.qbic.io.parser.PostmanPropertiesParser;
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -51,7 +57,6 @@ public class SuperPostmanSessionSetupManagerForTestsIT {
                 postmanSessionManager.getSessionToken()
         );
         postmanDataStreamProvider = new PostmanDataStreamProvider(
-                postmanSessionManager.getApplicationServer(),
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
@@ -73,6 +78,47 @@ public class SuperPostmanSessionSetupManagerForTestsIT {
         assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
         postmanSessionManager.getApplicationServer().logout(postmanSessionManager.getSessionToken());
         assertFalse(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+    }
+
+    // TODO maybe add this stuff to our core lib
+
+
+    protected void downloadInputStream(final InputStream inputStream, final String outputPath) throws IOException {
+        final String outputFile = outputPath + "/bla";
+        byte[] buffer = new byte[8 * 1024];
+
+        try {
+            OutputStream output = new FileOutputStream(outputFile);
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                output.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            inputStream.close();
+        }
+    }
+
+    protected static void createFolderIfNotExisting(final String directoryPath) {
+        new File(directoryPath).mkdirs();
+    }
+
+    protected static long countFilesInDirectory(final String directoryPath) throws IOException {
+        long count;
+        try (Stream<Path> files = Files.list(Paths.get(directoryPath))) {
+            count = files.count();
+            return count;
+        }
+    }
+
+    protected static int countFileOfExtensionInDirectory(final String directoryPath, final String fileExtension) {
+        Collection allFoundFiles = FileUtils.listFiles(new File(directoryPath), new String[]{fileExtension}, true);
+        return allFoundFiles.size();
+    }
+
+    protected static long getFileSizeOfDirectory(final String directoryPath) {
+        return FileUtils.sizeOfDirectory(new File(directoryPath));
     }
 
     protected static PostmanDataFinder getPostmanDataFinder() {
