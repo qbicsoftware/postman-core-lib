@@ -232,7 +232,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
         // tested via public interfaces of all methods of PostmanDataDownloader
     }
 
-    //TODO I could test those as well - behold - they're not necessarily part of IT, but Test
+    // TODO maybe add this stuff to our core lib
     private static void createFolderIfNotExisting(final String directoryPath) {
         new File(directoryPath).mkdirs();
     }
