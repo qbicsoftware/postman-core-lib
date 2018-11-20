@@ -54,10 +54,10 @@ public class PostmanDataDownloader {
      * @param postmanFilterOptions
      * @throws IOException
      */
-    public void downloadRequestedFilesOfDatasets(final List<String> IDs,
-                                                 final PostmanFilterOptions postmanFilterOptions,
-                                                 final PostmanDataFinder postmanDataFinder,
-                                                 final String outputPath) throws IOException {
+    void downloadRequestedFilesOfDatasets(final List<String> IDs,
+                                          final PostmanFilterOptions postmanFilterOptions,
+                                          final PostmanDataFinder postmanDataFinder,
+                                          final String outputPath) throws IOException {
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
@@ -81,8 +81,8 @@ public class PostmanDataDownloader {
 
                 downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
             }
-        } else {
             // no suffix or regex was supplied -> download all datasets
+        } else {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
                 final List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
@@ -120,9 +120,9 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    public void downloadFilesFilteredByIDs(final String ident,
-                                            final List<DataSetFilePermId> foundFilteredIDs,
-                                            final String outputPath) throws IOException {
+    void downloadFilesFilteredByIDs(final String ident,
+                                    final List<DataSetFilePermId> foundFilteredIDs,
+                                    final String outputPath) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
@@ -151,7 +151,7 @@ public class PostmanDataDownloader {
      * @return exitcode
      * @throws IOException
      */
-    public int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
+    private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);
@@ -168,7 +168,7 @@ public class PostmanDataDownloader {
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
-                            (int) file.getDataSetFile().getFileLength() : buffersize;
+                                      (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
@@ -200,6 +200,7 @@ public class PostmanDataDownloader {
      * @return 0 if successful, 1 else
      */
     private int downloadDataset(final List<DataSet> dataSetList, final String outputPath) throws IOException{
+        int count = 0;
         for (DataSet dataset : dataSetList) {
             DataSetPermId permID = dataset.getPermId();
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
@@ -215,6 +216,7 @@ public class PostmanDataDownloader {
                 if (file.getDataSetFile().getFileLength() > 0) {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
+                    count++;
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
@@ -237,8 +239,11 @@ public class PostmanDataDownloader {
             }
         }
 
+        System.out.println(count);
+
         return 0;
     }
+
 
 }
     

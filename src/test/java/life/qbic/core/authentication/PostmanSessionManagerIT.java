@@ -1,7 +1,7 @@
 package life.qbic.core.authentication;
 
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
-import life.qbic.SuperPostmanSessionSetupManagerForTestsIT;
+import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * Contains tests related to session managment
  * starts logged in, since it extends SuperPostmanSessionSetupManager
  */
-public class PostmanSessionManagerIT extends SuperPostmanSessionSetupManagerForTestsIT {
+public class PostmanSessionManagerIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
 
     private static PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
 

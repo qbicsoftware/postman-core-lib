@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  * Super class for all tests which require A PostmanSession
  * Furthermore, objects for all DataLoading operations are created and provided
  */
-public class SuperPostmanSessionSetupManagerForTestsIT {
+public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
 
     private static PostmanSessionManager postmanSessionManager;
     private static PostmanDataFinder postmanDataFinder;
@@ -85,7 +85,7 @@ public class SuperPostmanSessionSetupManagerForTestsIT {
         assertFalse(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
     }
 
-    // TODO maybe add this stuff to our core lib
+    // TODO maybe add this stuff below (all of it) to our core lib
 
     protected void downloadInputStream(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
         int buffersize = 1024;
@@ -100,13 +100,12 @@ public class SuperPostmanSessionSetupManagerForTestsIT {
                     if (file.getDataSetFile().getFileLength() > 0) {
                         String[] splitted = file.getDataSetFile().getPath().split("/");
                         String lastOne = splitted[splitted.length - 1];
-                        OutputStream os = new FileOutputStream(outputPath+ File.separator + lastOne);
+                        OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                         ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
-                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
-                                (int) file.getDataSetFile().getFileLength() : buffersize;
+                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
                         byte[] buffer = new byte[bufferSize];
                         int bytesRead;
-                        //read from is to buffer
+                        //read from IS to buffer
                         while ((bytesRead = initialStream.read(buffer)) != -1) {
                             progressBar.updateProgress(bufferSize);
                             os.write(buffer, 0, bytesRead);
