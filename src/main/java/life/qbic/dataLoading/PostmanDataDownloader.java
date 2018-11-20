@@ -1,6 +1,5 @@
 package life.qbic.dataLoading;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
@@ -65,7 +64,7 @@ public class PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -75,7 +74,7 @@ public class PostmanDataDownloader {
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 

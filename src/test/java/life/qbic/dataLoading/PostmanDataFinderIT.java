@@ -74,7 +74,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForInteg
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
 
         List<String> foundPermIDs = foundRegexFilteredIDs.stream()
                 .map(DataSetFilePermId::toString)
@@ -121,7 +121,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForInteg
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(
                 "/CONFERENCE_DEMO/QTGPR014A2",
                 new ArrayList<>(Collections.singleton(".html")));
 
@@ -153,7 +153,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForInteg
      */
     @Test
     public void testFindAllRegexFilteredIDsComplex() {
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".jobscript.FastQC.")));
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".jobscript.FastQC.")));
 
         // correct number of IDs found?
         assertThat(foundRegexFilteredIDs.size()).isAtLeast(252); // 06.11.2018
@@ -182,7 +182,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForInteg
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
+        List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
 
         List<String> foundPermIDs = foundSuffixFilteredIDs.stream()
                 .map(DataSetFilePermId::toString)
@@ -229,7 +229,7 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForInteg
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".html")));
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".html")));
 
         List<String> foundPermIDs = foundRegexFilteredIDs.stream()
                 .limit(5)

@@ -26,9 +26,38 @@ public class PostmanDataStreamProvider {
         this.sessionToken = sessionToken;
     }
 
+    // TODO
+    InputStream provideInputStreamForID(final String ID,
+                                        final PostmanFilterOptions postmanFilterOptions,
+                                        final PostmanDataFinder postmanDataFinder) {
+        List<DataSetFilePermId> dataSetFilePermIds = postmanDataFinder.findAllPermIDs(ID);
+
+
+        DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+        options.setRecursive(true);
+
+        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(dataSetFilePermIds.get(0)), options);
+    }
+
+    // TODO
+
+    /**
+     *
+     * @param permID
+     * @return
+     */
+    InputStream provideInputStreamForPermID(final DataSetFilePermId permID) {
+        DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+        options.setRecursive(true);
+
+        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(permID), options);
+    }
+
+
     /**
      * Provides a single Inputstreams for IDs
      * checks whether any filtering option (suffix or regex) has been passed and applies filtering if needed
+     *
      * @param IDs
      * @return
      */
@@ -44,7 +73,7 @@ public class PostmanDataStreamProvider {
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
-                List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.debug(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -59,7 +88,7 @@ public class PostmanDataStreamProvider {
 
             for (String ident : IDs) {
                 LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
-                List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.debug(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -160,7 +189,7 @@ public class PostmanDataStreamProvider {
 //
 //            for (String ident : IDs) {
 //                LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
-//                List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+//                List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident, postmanFilterOptions.getSuffixes());
 //
 //                LOG.debug(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 //
@@ -175,7 +204,7 @@ public class PostmanDataStreamProvider {
 //
 //            for (String ident : IDs) {
 //                LOG.debug(String.format("Providing datastream for provided identifier %s", ident));
-//                List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+//                List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident, postmanFilterOptions.getRegexPatterns());
 //
 //                LOG.debug(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 //

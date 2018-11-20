@@ -11,7 +11,6 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
 import life.qbic.util.RegexFilterDownloadUtil;
 import life.qbic.util.StringUtil;
@@ -115,7 +114,7 @@ public class PostmanDataFinder {
      * @param regexPatterns
      * @return
      */
-    List<DataSetFilePermId> findAllRegexFilteredIDs(final String ident, final List<String> regexPatterns) {
+    List<DataSetFilePermId> findAllRegexFilteredPermIDs(final String ident, final List<String> regexPatterns) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
 
         return RegexFilterDownloadUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
@@ -128,7 +127,7 @@ public class PostmanDataFinder {
      * @param suffixes
      * @return
      */
-    List<DataSetFilePermId> findAllSuffixFilteredIDs(final String ident, final List<String> suffixes) {
+    List<DataSetFilePermId> findAllSuffixFilteredPermIDs(final String ident, final List<String> suffixes) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
         List<DataSetFilePermId> allFileIDs = new ArrayList<>();
 
@@ -152,6 +151,31 @@ public class PostmanDataFinder {
             }
 
             allFileIDs.addAll(fileIds);
+        }
+
+        return allFileIDs;
+    }
+
+    /**
+     * Finds all IDs of files filtered by a suffix
+     *
+     * @param ident
+     * @return
+     */
+    List<DataSetFilePermId> findAllPermIDs(final String ident) {
+        final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
+        List<DataSetFilePermId> allFileIDs = new ArrayList<>();
+
+        for (DataSet ds : allDatasets) {
+            // we cannot access the files directly of the datasets -> we need to query for the files first using the datasetID
+            DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+            criteria.withDataSet().withCode().thatEquals(ds.getCode());
+            SearchResult<DataSetFile> result = dataStoreServer.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+            final List<DataSetFile> files = result.getObjects();
+
+            for (DataSetFile file : files) {
+                allFileIDs.add(file.getPermId());
+            }
         }
 
         return allFileIDs;
