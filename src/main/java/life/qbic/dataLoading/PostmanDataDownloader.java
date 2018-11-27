@@ -9,6 +9,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import life.qbic.core.PostmanFilterOptions;
+import life.qbic.core.SupportedFileTypes;
 import life.qbic.util.ProgressBar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -82,6 +83,11 @@ public class PostmanDataDownloader {
             }
             // filter type was specified
         } else if (!postmanFilterOptions.getFilterType().isEmpty()) {
+            if (!SupportedFileTypes.getSupportedFilterTypes().keySet().contains(postmanFilterOptions.getFilterType())) {
+                LOG.error("Provided file filter type " + postmanFilterOptions.getFilterType() + " is not supported!");
+                LOG.warn("Filtering may not be applied!");
+            }
+
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
                 final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredPermIDs(ident, postmanFilterOptions.getFilterType());
@@ -210,7 +216,6 @@ public class PostmanDataDownloader {
      * @return 0 if successful, 1 else
      */
     private int downloadDataset(final List<DataSet> dataSetList, final String outputPath) throws IOException{
-        int count = 0;
         for (DataSet dataset : dataSetList) {
             DataSetPermId permID = dataset.getPermId();
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
@@ -226,7 +231,6 @@ public class PostmanDataDownloader {
                 if (file.getDataSetFile().getFileLength() > 0) {
                     String[] splitted = file.getDataSetFile().getPath().split("/");
                     String lastOne = splitted[splitted.length - 1];
-                    count++;
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
@@ -249,11 +253,8 @@ public class PostmanDataDownloader {
             }
         }
 
-        System.out.println(count);
-
         return 0;
     }
-
 
 }
     

@@ -3,6 +3,7 @@ package life.qbic;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
 import life.qbic.dataLoading.PostmanDataDownloader;
+import life.qbic.dataLoading.PostmanDataFilterer;
 import life.qbic.dataLoading.PostmanDataStreamProvider;
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.core.authentication.PostmanConfig;
@@ -38,6 +39,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     private static PostmanDataFinder postmanDataFinder;
     private static PostmanDataDownloader postmanDataDownloader;
     private static PostmanDataStreamProvider postmanDataStreamProvider;
+    private static PostmanDataFilterer postmanDataFilterer;
 
     /**
      * setups PostmanSessionManager
@@ -66,6 +68,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
+        postmanDataFilterer = new PostmanDataFilterer();
     }
 
     /**
@@ -206,5 +209,8 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
         return postmanDataStreamProvider;
     }
 
+    protected static PostmanDataFilterer getPostmanDataFilterer() {
+        return postmanDataFilterer;
+    }
 }
 
