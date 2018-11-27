@@ -26,31 +26,32 @@ public class PostmanDataStreamProvider {
         this.sessionToken = sessionToken;
     }
 
-    // TODO
-    InputStream provideInputStreamForID(final String ID,
-                                        final PostmanFilterOptions postmanFilterOptions,
-                                        final PostmanDataFinder postmanDataFinder) {
-        List<DataSetFilePermId> dataSetFilePermIds = postmanDataFinder.findAllPermIDs(ID);
-
-
-        DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
-        options.setRecursive(true);
-
-        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(dataSetFilePermIds.get(0)), options);
-    }
-
-    // TODO
-
     /**
      *
      * @param permID
      * @return
      */
-    InputStream provideInputStreamForPermID(final DataSetFilePermId permID) {
+    public InputStream provideInputStreamForPermID(final DataSetFilePermId permID) {
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
         options.setRecursive(true);
 
         return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(permID), options);
+    }
+
+    /**
+     * Provides an InputStream for a given list of datasets
+     * There was no filtering applied here!
+     *
+     * @param dataSet
+     * @return InputStream
+     */
+    public InputStream getDatasetStreamFromDatasetList(final DataSet dataSet) {
+            DataSetPermId permID = dataSet.getPermId();
+            DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+            IDataSetFileId fileId = new DataSetFilePermId(new DataSetPermId(permID.toString()));
+            options.setRecursive(true);
+
+        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(fileId), options);
     }
 
 
@@ -230,7 +231,7 @@ public class PostmanDataStreamProvider {
 //        }
 //    }
 //
-
+//
 //
 //    /**
 //     * Provides an InputStream files that have been found after filtering for suffixes/regexPatterns by a list of supplied IDs per ID
@@ -271,6 +272,32 @@ public class PostmanDataStreamProvider {
 //        }
 //
 //        return inputStreams;
+//    }
+
+//    /**
+//     *
+//     *
+//     * THIS IS NOT YET USEFUL, AS IT SHOULD NOT USE LISTS OF PERMIDS
+//     * CAN T DEAL WITH LISTS
+//     * @param ID
+//     * @param postmanFilterOptions
+//     * @param postmanDataFinder
+//     * @return
+//     */
+//    InputStream provideInputStreamForID(final String ID,
+//                                        final PostmanFilterOptions postmanFilterOptions,
+//                                        final PostmanDataFinder postmanDataFinder) {
+//
+//
+//
+//
+//
+//        List<DataSetFilePermId> dataSetFilePermIds = postmanDataFinder.findAllPermIDs(ID);
+//
+//        DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+//        options.setRecursive(true);
+//
+//        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(dataSetFilePermIds.get(0)), options);
 //    }
 
     /**

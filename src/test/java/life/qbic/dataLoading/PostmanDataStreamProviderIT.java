@@ -38,6 +38,18 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         pushbackInputStream.unread(readBytes);
     }
 
+    @Test
+    public void testProvideInputStreamForPermID() throws Exception {
+
+    }
+
+    @Test
+    public void testGetDatasetStreamFromDatasetList() throws Exception {
+        
+    }
+
+
+
     /**
      *
      * UNSTABLE METHODS BEGIN

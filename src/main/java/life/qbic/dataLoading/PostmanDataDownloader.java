@@ -53,7 +53,7 @@ public class PostmanDataDownloader {
      * @param postmanFilterOptions
      * @throws IOException
      */
-    void downloadRequestedFilesOfDatasets(final List<String> IDs,
+    public void downloadRequestedFilesOfDatasets(final List<String> IDs,
                                           final PostmanFilterOptions postmanFilterOptions,
                                           final PostmanDataFinder postmanDataFinder,
                                           final String outputPath) throws IOException {
@@ -80,8 +80,19 @@ public class PostmanDataDownloader {
 
                 downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
             }
-            // no suffix or regex was supplied -> download all datasets
-        } else {
+            // filter type was specified
+        } else if (!postmanFilterOptions.getFilterType().isEmpty()) {
+            for (String ident : IDs) {
+                LOG.info(String.format("Downloading files for provided identifier %s", ident));
+                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredPermIDs(ident, postmanFilterOptions.getFilterType());
+
+                LOG.info(String.format("Number of files found: %s", foundTypeFilteredIDs.size()));
+
+                downloadDataset(foundTypeFilteredIDs, outputPath);
+            }
+        }
+        // no suffix or regex was supplied -> download all datasets
+        else {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
                 final List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
