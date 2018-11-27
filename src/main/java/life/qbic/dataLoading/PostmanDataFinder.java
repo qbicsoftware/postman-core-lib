@@ -4,6 +4,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.common.search.SearchResult;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.fetchoptions.DataSetFetchOptions;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
@@ -11,10 +12,8 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.fetchoptions.DataSetFileFetchOptions;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.search.DataSetFileSearchCriteria;
-import life.qbic.util.RegexFilterDownloadUtil;
-import life.qbic.util.StringUtil;
+import life.qbic.util.RegexFilterUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -52,7 +51,7 @@ public class PostmanDataFinder {
      * @param sampleId
      * @return all found datasets for a given sampleID
      */
-    List<DataSet> findAllDatasetsRecursive(final String sampleId) {
+    public List<DataSet> findAllDatasetsRecursive(final String sampleId) {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatEquals(sampleId);
 
@@ -74,18 +73,7 @@ public class PostmanDataFinder {
             foundDatasets.addAll(fetchDescendantDatasets(sample));
         }
 
-        if (filterType.isEmpty())
-            return foundDatasets;
-
-        List<DataSet> filteredDatasets = new ArrayList<>();
-        for (DataSet ds : foundDatasets){
-            LOG.debug(ds.getType().getCode() + " found.");
-            if (filterType.equals(ds.getType().getCode())){
-                filteredDatasets.add(ds);
-            }
-        }
-
-        return filteredDatasets;
+        return foundDatasets;
     }
 
     /**
@@ -115,10 +103,10 @@ public class PostmanDataFinder {
      * @param regexPatterns
      * @return
      */
-    List<DataSetFilePermId> findAllRegexFilteredIDs(final String ident, final List<String> regexPatterns) {
+    List<DataSetFilePermId> findAllRegexFilteredPermIDs(final String ident, final List<String> regexPatterns) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
 
-        return RegexFilterDownloadUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
+        return RegexFilterUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
     }
 
     /**
@@ -128,7 +116,7 @@ public class PostmanDataFinder {
      * @param suffixes
      * @return
      */
-    List<DataSetFilePermId> findAllSuffixFilteredIDs(final String ident, final List<String> suffixes) {
+    public List<DataSetFilePermId> findAllSuffixFilteredPermIDs(final String ident, final List<String> suffixes) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
         List<DataSetFilePermId> allFileIDs = new ArrayList<>();
 
@@ -139,19 +127,72 @@ public class PostmanDataFinder {
             SearchResult<DataSetFile> result = dataStoreServer.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
             final List<DataSetFile> files = result.getObjects();
 
-            List<DataSetFilePermId> fileIds = new ArrayList<>();
+            PostmanDataFilterer postmanDataFilterer = new PostmanDataFilterer();
 
-            // only add to the result if the suffix matches
-            for (DataSetFile file : files)
-            {
-                for (String suffix : suffixes) {
-                    if (StringUtil.endsWithIgnoreCase(file.getPermId().toString(), suffix)) {
-                        fileIds.add(file.getPermId());
-                    }
-                }
+            List<DataSetFile> suffixFilteredDataSetFiles = postmanDataFilterer.filterDataSetFilesBySuffix(files, suffixes);
+
+            suffixFilteredDataSetFiles.stream()
+                    .map(DataSetFile::getPermId)
+                    .forEachOrdered(allFileIDs::add);
+        }
+
+        return allFileIDs;
+    }
+
+    public List<DataSet> findAllTypeFilteredPermIDs(final String ident, final String filterType) {
+        SampleSearchCriteria criteria = new SampleSearchCriteria();
+        criteria.withCode().thatEquals(ident);
+        List<DataSetPermId> allFileIDs = new ArrayList<>();
+
+        // tell the API to fetch all descendants for each returned sample
+        SampleFetchOptions fetchOptions = new SampleFetchOptions();
+        DataSetFetchOptions dsFetchOptions = new DataSetFetchOptions();
+        dsFetchOptions.withType();
+        fetchOptions.withChildrenUsing(fetchOptions);
+        fetchOptions.withDataSetsUsing(dsFetchOptions);
+        SearchResult<Sample> result = applicationServer.searchSamples(sessionToken, criteria, fetchOptions);
+
+        List<DataSet> foundDatasets = new ArrayList<>();
+
+        for (Sample sample : result.getObjects()) {
+            // add the datasets of the sample itself
+            foundDatasets.addAll(sample.getDataSets());
+
+            // fetch all datasets of the children
+            foundDatasets.addAll(fetchDescendantDatasets(sample));
+        }
+
+        List<DataSet> filteredDatasets = new ArrayList<>();
+        for (DataSet ds : foundDatasets){
+            if (filterType.equals(ds.getType().getCode())){
+                filteredDatasets.add(ds);
             }
+        }
 
-            allFileIDs.addAll(fileIds);
+        return filteredDatasets;
+    }
+
+
+    /**
+     * Finds all IDs of files - no filtering applied
+     *
+     * @param ident
+     * @return
+     */
+    public List<DataSetFilePermId> findAllPermIDs(final String ident) {
+        final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
+        List<DataSetFilePermId> allFileIDs = new ArrayList<>();
+
+        for (DataSet ds : allDatasets) {
+            // we cannot access the files directly of the datasets -> we need to query for the files first using the datasetID
+            DataSetFileSearchCriteria criteria = new DataSetFileSearchCriteria();
+            criteria.withDataSet().withCode().thatEquals(ds.getCode());
+            SearchResult<DataSetFile> result = dataStoreServer.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
+            final List<DataSetFile> files = result.getObjects();
+
+            for (DataSetFile file : files) {
+                allFileIDs.add(file.getPermId());
+            }
         }
 
         return allFileIDs;

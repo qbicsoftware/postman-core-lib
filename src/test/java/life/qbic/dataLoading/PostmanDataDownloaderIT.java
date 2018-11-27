@@ -5,30 +5,24 @@ import static org.junit.Assert.assertEquals;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForTestsIT;
+import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.testConfigurations.IntegrationTest;
 import life.qbic.testConfigurations.Slow;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForTestsIT {
+public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
 
     private static PostmanDataDownloader postmanDataDownloader = getPostmanDataDownloader();
-    private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput";
+    private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/postmanDataDownloaderTest";
 
     @Test
     public void testDownloadRequestedFilesOfDatasets() throws IOException {
@@ -95,8 +89,6 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
                 add(".html");
             }
         };
-
-
         final long expectedNumberOfFiles = 43;
 
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
@@ -163,8 +155,6 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
         // all files downloaded?
         assertThat(foundNumberOfFiles).isAtLeast(expectedNumberOfFiles); // 06.11.2018
 
-        System.out.println(getFileSizeOfDirectory(OUTPUTPATH));
-
         final long expectedSumFilesSize = 1650888; // 13.11.2018
 
         // is the file size of all downloaded files large enough?
@@ -230,28 +220,6 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForT
     @Test
     public void testDownloadDataset() {
         // tested via public interfaces of all methods of PostmanDataDownloader
-    }
-
-    // TODO maybe add this stuff to our core lib
-    private static void createFolderIfNotExisting(final String directoryPath) {
-        new File(directoryPath).mkdirs();
-    }
-
-    private static long countFilesInDirectory(final String directoryPath) throws IOException {
-        long count;
-        try (Stream<Path> files = Files.list(Paths.get(directoryPath))) {
-            count = files.count();
-            return count;
-        }
-    }
-
-    private static int countFileOfExtensionInDirectory(final String directoryPath, final String fileExtension) {
-        Collection allFoundFiles = FileUtils.listFiles(new File(directoryPath), new String[]{fileExtension}, true);
-        return allFoundFiles.size();
-    }
-
-    private static long getFileSizeOfDirectory(final String directoryPath) {
-        return FileUtils.sizeOfDirectory(new File(directoryPath));
     }
 
 }

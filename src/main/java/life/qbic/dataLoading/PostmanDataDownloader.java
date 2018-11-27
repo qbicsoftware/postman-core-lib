@@ -1,6 +1,5 @@
 package life.qbic.dataLoading;
 
-import ch.ethz.sis.openbis.generic.asapi.v3.IApplicationServerApi;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
@@ -10,6 +9,7 @@ import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFil
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.IDataSetFileId;
 import life.qbic.core.PostmanFilterOptions;
+import life.qbic.core.SupportedFileTypes;
 import life.qbic.util.ProgressBar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -55,9 +55,9 @@ public class PostmanDataDownloader {
      * @throws IOException
      */
     public void downloadRequestedFilesOfDatasets(final List<String> IDs,
-                                                 final PostmanFilterOptions postmanFilterOptions,
-                                                 final PostmanDataFinder postmanDataFinder,
-                                                 final String outputPath) throws IOException {
+                                          final PostmanFilterOptions postmanFilterOptions,
+                                          final PostmanDataFinder postmanDataFinder,
+                                          final String outputPath) throws IOException {
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
@@ -65,7 +65,7 @@ public class PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident, postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -75,14 +75,30 @@ public class PostmanDataDownloader {
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident, postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
                 downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
             }
-        } else {
-            // no suffix or regex was supplied -> download all datasets
+            // filter type was specified
+        } else if (!postmanFilterOptions.getFilterType().isEmpty()) {
+            if (!SupportedFileTypes.getSupportedFilterTypes().keySet().contains(postmanFilterOptions.getFilterType())) {
+                LOG.error("Provided file filter type " + postmanFilterOptions.getFilterType() + " is not supported!");
+                LOG.warn("Filtering may not be applied!");
+            }
+
+            for (String ident : IDs) {
+                LOG.info(String.format("Downloading files for provided identifier %s", ident));
+                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredPermIDs(ident, postmanFilterOptions.getFilterType());
+
+                LOG.info(String.format("Number of files found: %s", foundTypeFilteredIDs.size()));
+
+                downloadDataset(foundTypeFilteredIDs, outputPath);
+            }
+        }
+        // no suffix or regex was supplied -> download all datasets
+        else {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
                 final List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
@@ -120,9 +136,9 @@ public class PostmanDataDownloader {
      * @param foundFilteredIDs
      * @throws IOException
      */
-    public void downloadFilesFilteredByIDs(final String ident,
-                                            final List<DataSetFilePermId> foundFilteredIDs,
-                                            final String outputPath) throws IOException {
+    void downloadFilesFilteredByIDs(final String ident,
+                                    final List<DataSetFilePermId> foundFilteredIDs,
+                                    final String outputPath) throws IOException {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;
@@ -151,7 +167,7 @@ public class PostmanDataDownloader {
      * @return exitcode
      * @throws IOException
      */
-    public int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
+    private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{
         for (IDataSetFileId id : filteredIDs) {
             DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
             options.setRecursive(true);
@@ -168,7 +184,7 @@ public class PostmanDataDownloader {
                     OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                     ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
-                            (int) file.getDataSetFile().getFileLength() : buffersize;
+                                      (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
                     //read from is to buffer
