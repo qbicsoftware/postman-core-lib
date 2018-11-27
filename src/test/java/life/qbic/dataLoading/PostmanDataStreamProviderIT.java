@@ -1,5 +1,8 @@
 package life.qbic.dataLoading;
 
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
+import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.testConfigurations.IntegrationTest;
@@ -10,8 +13,6 @@ import org.junit.experimental.categories.Category;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
 
 @Category({IntegrationTest.class, Slow.class})
 public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
@@ -27,27 +28,53 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
             }
         };
 
+        // is the stream NOT empty?
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
-        PushbackInputStream pushbackInputStream = new PushbackInputStream(
-                postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()
-                ));
-
-        byte[] buffer = new byte[8 * 1024];
-        int readBytes = pushbackInputStream.read(buffer);
-        assertThat(readBytes).isAtLeast(1);
-        pushbackInputStream.unread(readBytes);
+        testStreamIsNotEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
     }
 
+    // TODO I could download the streams and compare the files
     @Test
-    public void testProvideInputStreamForPermID() throws Exception {
+    public void testProvideInputStreamForPermID() {
+        List<DataSetFilePermId> permIDs = new ArrayList<DataSetFilePermId>() {
+            {
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00119_SRR099967_1.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00119_SRR099967_2.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00121_ERR031964_1.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00121_ERR031964_2.html"));
+                add(new DataSetFilePermId(new DataSetPermId("20170221165026653-162100"), "original/QTGPRE77_workflow_results/FastQC_HG00638_SRR070804_1.html"));
+            }
+        };
 
+        // is the stream NOT empty?
+        permIDs.forEach(dataSetFilePermId -> {
+            try {
+                testStreamIsNotEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     @Test
     public void testGetDatasetStreamFromDatasetList() throws Exception {
-        
-    }
+        List<String> IDsToDownload = new ArrayList<String>() {
+            {
+                add("/CONFERENCE_DEMO/QTGPR014A2");
+            }
+        };
+        final List<DataSet> foundDataSets = getPostmanDataFinder().findAllDatasetsRecursive(IDsToDownload.get(0));
 
+        // is the stream NOT empty?
+        foundDataSets.forEach(dataSet -> {
+            try {
+                testStreamIsNotEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+    }
 
 
     /**
@@ -76,7 +103,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
 //        Map<String, List<InputStream>> foundIDsToInputStreams = getPostmanDataStreamProvider().provideInputStreamPerID(IDsToDownload,
 //                                                                                                                       postmanFilterOptions,
 //                                                                                                                       getPostmanDataFinder());
-//        downloadInputStream(foundIDsToInputStreams, OUTPUTPATH);
+//        downloadInputStreams(foundIDsToInputStreams, OUTPUTPATH);
 //
 //        final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
 //
@@ -132,7 +159,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
 //        Map<String, List<InputStream>> foundIDsToInputStreams = getPostmanDataStreamProvider().provideInputStreamPerID(IDsToDownload,
 //                postmanFilterOptions,
 //                getPostmanDataFinder());
-//        downloadInputStream(foundIDsToInputStreams, OUTPUTPATH);
+//        downloadInputStreams(foundIDsToInputStreams, OUTPUTPATH);
 //
 //        final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
 //
@@ -182,7 +209,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
 //        Map<String, List<InputStream>> foundIDsToInputStreams = getPostmanDataStreamProvider().provideInputStreamPerID(IDsToDownload,
 //                postmanFilterOptions,
 //                getPostmanDataFinder());
-//        downloadInputStream(foundIDsToInputStreams, OUTPUTPATH);
+//        downloadInputStreams(foundIDsToInputStreams, OUTPUTPATH);
 //
 //        final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
 //

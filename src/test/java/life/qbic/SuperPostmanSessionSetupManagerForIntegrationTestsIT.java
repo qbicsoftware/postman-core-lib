@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
+import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -86,8 +87,29 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     }
 
     // TODO maybe add this stuff below (all of it) to our core lib
+    /**
+     * tests whether or not an Inputstream contains any data or not
+     *
+     * @param inputStream
+     * @throws IOException
+     */
+    protected void testStreamIsNotEmpty(final InputStream inputStream) throws IOException {
+        PushbackInputStream pushbackInputStream = new PushbackInputStream(inputStream);
 
-    protected void downloadInputStream(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
+        byte[] buffer = new byte[8 * 1024];
+        int readBytes = pushbackInputStream.read(buffer);
+        assertThat(readBytes).isAtLeast(1);
+        pushbackInputStream.unread(readBytes);
+    }
+
+    /**
+     * Downloads all inputstreams into a specified folder
+     *
+     * @param IDToInputStreams usually IDs to lists of provided inputstreams
+     * @param outputPath path to the folder to download all files into
+     * @throws IOException
+     */
+    protected void downloadInputStreams(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
         int buffersize = 1024;
         for (Map.Entry<String, List<InputStream>> entry : IDToInputStreams.entrySet()) {
             for (InputStream inputStream : entry.getValue()) {
@@ -125,10 +147,23 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
 
     }
 
+    /**
+     * creates a folder in a specified path if there doesn't exist folder yet
+     * mkdirs simply does nothing if the folder already exists
+     *
+     * @param directoryPath
+     */
     protected static void createFolderIfNotExisting(final String directoryPath) {
         new File(directoryPath).mkdirs();
     }
 
+    /**
+     * counts all files in a specified folder no matter the extension
+     *
+     * @param directoryPath path to the folder to count
+     * @return count of all files in a specific folder
+     * @throws IOException
+     */
     protected static long countFilesInDirectory(final String directoryPath) throws IOException {
         long count;
         try (Stream<Path> files = Files.list(Paths.get(directoryPath))) {
@@ -137,11 +172,24 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
         }
     }
 
+    /**
+     * counts the occurrences of a specific file extension in a specified folder
+     *
+     * @param directoryPath path to the folder to check
+     * @param fileExtension the extension to check for and count
+     * @return
+     */
     protected static int countFileOfExtensionInDirectory(final String directoryPath, final String fileExtension) {
         Collection allFoundFiles = FileUtils.listFiles(new File(directoryPath), new String[]{fileExtension}, true);
         return allFoundFiles.size();
     }
 
+    /**
+     * counts the filesizes of a directory as bytes
+     *
+     * @param directoryPath
+     * @return
+     */
     protected static long getFileSizeOfDirectory(final String directoryPath) {
         return FileUtils.sizeOfDirectory(new File(directoryPath));
     }
@@ -157,7 +205,6 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     protected static PostmanDataStreamProvider getPostmanDataStreamProvider() {
         return postmanDataStreamProvider;
     }
-
 
 }
 

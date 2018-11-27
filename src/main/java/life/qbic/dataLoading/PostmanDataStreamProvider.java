@@ -27,7 +27,6 @@ public class PostmanDataStreamProvider {
     }
 
     /**
-     *
      * @param permID
      * @return
      */
@@ -46,10 +45,10 @@ public class PostmanDataStreamProvider {
      * @return InputStream
      */
     public InputStream getDatasetStreamFromDatasetList(final DataSet dataSet) {
-            DataSetPermId permID = dataSet.getPermId();
-            DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
-            IDataSetFileId fileId = new DataSetFilePermId(new DataSetPermId(permID.toString()));
-            options.setRecursive(true);
+        DataSetPermId permID = dataSet.getPermId();
+        DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
+        IDataSetFileId fileId = new DataSetFilePermId(new DataSetPermId(permID.toString()));
+        options.setRecursive(true);
 
         return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(fileId), options);
     }
