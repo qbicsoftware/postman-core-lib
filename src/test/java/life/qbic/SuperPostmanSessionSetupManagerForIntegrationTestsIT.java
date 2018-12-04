@@ -26,10 +26,6 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/superPostmanSessionSetupManagerForIntegrationTestsTest";
 
     private static PostmanSessionManager postmanSessionManager;
-    private static PostmanDataFinder postmanDataFinder;
-    private static PostmanDataDownloader postmanDataDownloader;
-    private static PostmanDataStreamProvider postmanDataStreamProvider;
-    private static PostmanDataFilterer postmanDataFilterer;
 
     /**
      * setups PostmanSessionManager
@@ -43,22 +39,6 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
         PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
         postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
         postmanSessionManager.loginToOpenBIS(postmanConfig);
-
-        // create all dataloading objects
-        postmanDataFinder = new PostmanDataFinder(
-                postmanSessionManager.getApplicationServer(),
-                postmanSessionManager.getDataStoreServer(),
-                postmanSessionManager.getSessionToken()
-        );
-        postmanDataDownloader = new PostmanDataDownloader(
-                postmanSessionManager.getDataStoreServer(),
-                postmanSessionManager.getSessionToken()
-        );
-        postmanDataStreamProvider = new PostmanDataStreamProvider(
-                postmanSessionManager.getDataStoreServer(),
-                postmanSessionManager.getSessionToken()
-        );
-        postmanDataFilterer = new PostmanDataFilterer();
     }
 
     /**
@@ -142,12 +122,12 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     }
 
     /**
-     *
+     * verifies that the cumulated file sizes match of a prespecified directory
      */
     @Test
     public void testGetFileSizeOfDirectory() {
         final String pathToTest = DOWNLOADED_FILES_OUTPUT_PATH + "/testGetFileSizeOfDirectory";
-        
+
         assertEquals(postmanSessionSetupManagerForIntegrationTests.getFileSizeOfDirectory(pathToTest), 716);
     }
 

@@ -82,15 +82,15 @@ public class PostmanDataDownloader {
                 downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
             }
             // filter type was specified
-        } else if (!postmanFilterOptions.getFilterType().isEmpty()) {
-            if (!SupportedFileTypes.getSupportedFilterTypes().keySet().contains(postmanFilterOptions.getFilterType())) {
-                LOG.error("Provided file filter type " + postmanFilterOptions.getFilterType() + " is not supported!");
+        } else if (!postmanFilterOptions.getFileType().isEmpty()) {
+            if (!SupportedFileTypes.getSupportedFilterTypes().keySet().contains(postmanFilterOptions.getFileType())) {
+                LOG.error("Provided file filter type " + postmanFilterOptions.getFileType() + " is not supported!");
                 LOG.warn("Filtering may not be applied!");
             }
 
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredPermIDs(ident, postmanFilterOptions.getFilterType());
+                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredPermIDs(ident, postmanFilterOptions.getFileType());
 
                 LOG.info(String.format("Number of files found: %s", foundTypeFilteredIDs.size()));
 
