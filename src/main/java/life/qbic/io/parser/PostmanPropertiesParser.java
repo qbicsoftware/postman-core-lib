@@ -7,12 +7,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+/**
+ * Provides the parsing of properties files containing information to create a PostmanConfig.
+ */
 public class PostmanPropertiesParser {
 
     private PostmanPropertiesParser() {
 
     }
 
+    /**
+     * parses a properties file and returns a PostmanConfig
+     *
+     * @param propertiesFilepath the properties file path
+     * @return PostmanConfig build using the properties file
+     * @throws IOException
+     */
     public static PostmanConfig parserProperties(final String propertiesFilepath) throws IOException {
         try {
             Properties properties = new Properties();

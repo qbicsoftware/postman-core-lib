@@ -27,8 +27,8 @@ public class PostmanDataStreamProvider {
     }
 
     /**
-     * @param permID
-     * @return
+     * @param permID permID to provide an InputStream for
+     * @return Inputstream for the permID
      */
     public InputStream provideInputStreamForPermID(final DataSetFilePermId permID) {
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
@@ -41,8 +41,8 @@ public class PostmanDataStreamProvider {
      * Provides an InputStream for a given list of datasets
      * There was no filtering applied here!
      *
-     * @param dataSet
-     * @return InputStream
+     * @param dataSet dataset to provide an inputstream for
+     * @return InputStream for the dataset
      */
     public InputStream getDatasetStreamFromDatasetList(final DataSet dataSet) {
         DataSetPermId permID = dataSet.getPermId();
@@ -58,8 +58,8 @@ public class PostmanDataStreamProvider {
      * Provides a single Inputstreams for IDs
      * checks whether any filtering option (suffix or regex) has been passed and applies filtering if needed
      *
-     * @param IDs
-     * @return
+     * @param IDs to provide an inputstream for
+     * @return a <b>concatenated single</b> inputstream for all IDs
      */
     InputStream provideSingleInputStreamForIDs(final List<String> IDs,
                                                final PostmanFilterOptions postmanFilterOptions,
@@ -115,10 +115,10 @@ public class PostmanDataStreamProvider {
     }
 
     /**
-     * Provides an InputStream files that have been found after filtering for suffixes/regexPatterns by a list of supplied IDs
+     * Provides an InputStream for permIDs that have been found after filtering for suffixes/regexPatterns
      *
-     * @param filteredIDs
-     * @return exitcode
+     * @param filteredIDs permIDs which have been filtered by suffixes/regexes
+     * @return single, concatenated InputStream for all filtered IDs
      */
     private InputStream getSingleDatasetStreamFromFilteredIds(final List<DataSetFilePermId> filteredIDs) {
         List<InputStream> inputStreams = new ArrayList<>();
@@ -138,7 +138,7 @@ public class PostmanDataStreamProvider {
      * There was no filtering applied here!
      *
      * @param dataSetList A list of datasets
-     * @return InputStream
+     * @return single, concatenated InputStream for all Datasets
      */
     private InputStream getSingleDatasetStreamFromDatasetList(final List<DataSet> dataSetList) {
         List<InputStream> inputStreams = new ArrayList<>();

@@ -10,7 +10,7 @@ public class PostmanCoreLib {
     private final static Logger LOG = LogManager.getLogger(PostmanCoreLib.class);
 
     public static void main(String[] args) {
-        SupportedFileTypes.printSupportedFileTypes();
+
     }
 
 }
