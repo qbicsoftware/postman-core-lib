@@ -3,7 +3,7 @@ package life.qbic.dataLoading;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
+import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTests;
 import life.qbic.testConfigurations.IntegrationTest;
 import life.qbic.testConfigurations.Slow;
 import org.junit.Test;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.assertEquals;
 
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
+public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForIntegrationTests {
 
     private static PostmanDataFinder postmanDataFinder = getPostmanDataFinder();
 

@@ -3,7 +3,7 @@ package life.qbic.dataLoading;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
+import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTests;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.testConfigurations.IntegrationTest;
 import life.qbic.testConfigurations.Slow;
@@ -21,7 +21,7 @@ import java.util.List;
  */
 
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
+public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForIntegrationTests {
 
     private static PostmanDataStreamProvider postmanDataStreamProvider = getPostmanDataStreamProvider();
     private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/postmanDataStreamProviderTest";
@@ -41,7 +41,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
 
         // is the stream NOT empty?
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
-        testStreamIsNotEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
+        isStreamNotEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
     }
 
     // TODO I could download the streams and compare the files
@@ -64,7 +64,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         // is the stream NOT empty?
         permIDs.forEach(dataSetFilePermId -> {
             try {
-                testStreamIsNotEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
+                isStreamNotEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,7 +86,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         // is the stream NOT empty?
         foundDataSets.forEach(dataSet -> {
             try {
-                testStreamIsNotEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
+                isStreamNotEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
             } catch (IOException e) {
                 e.printStackTrace();
             }

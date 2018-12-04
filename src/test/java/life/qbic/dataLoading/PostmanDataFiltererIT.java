@@ -3,7 +3,7 @@ package life.qbic.dataLoading;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
+import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTests;
 import life.qbic.core.PostmanFilterOptions;
 import org.junit.Test;
 
@@ -13,7 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
+public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForIntegrationTests {
 
     /**
      * tests both: suffix and regex filtering
