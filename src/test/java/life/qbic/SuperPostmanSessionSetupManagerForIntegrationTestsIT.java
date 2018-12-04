@@ -1,12 +1,7 @@
 package life.qbic;
 
-import jdk.internal.util.xml.impl.Input;
 import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
-import life.qbic.dataLoading.PostmanDataDownloader;
-import life.qbic.dataLoading.PostmanDataFilterer;
-import life.qbic.dataLoading.PostmanDataFinder;
-import life.qbic.dataLoading.PostmanDataStreamProvider;
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.io.parser.PostmanPropertiesParser;
 import org.junit.BeforeClass;

@@ -13,7 +13,6 @@ import life.qbic.io.parser.PostmanPropertiesParser;
 import life.qbic.util.ProgressBar;
 import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
-import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Files;
