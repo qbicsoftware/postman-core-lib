@@ -14,12 +14,23 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * TODO SOMETHING IS VERY WRONG HERE
+ * All the tests in this class run manually and solely isolated - they are running fine
+ * Running the whole test class however leads to tests being stuck at the downloadFiles method of openBIS!
+ */
+
 @Category({IntegrationTest.class, Slow.class})
 public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
 
     private static PostmanDataStreamProvider postmanDataStreamProvider = getPostmanDataStreamProvider();
     private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/postmanDataStreamProviderTest";
 
+    /**
+     * verifies that the streams are not empty!
+     *
+     * @throws IOException
+     */
     @Test
     public void testProvideSingleInputStreamForIDs() throws IOException {
         List<String> IDsToDownload = new ArrayList<String>() {
@@ -34,6 +45,10 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
     }
 
     // TODO I could download the streams and compare the files
+
+    /**
+     * verifies that the streams are not empty!
+     */
     @Test
     public void testProvideInputStreamForPermID() {
         List<DataSetFilePermId> permIDs = new ArrayList<DataSetFilePermId>() {
@@ -57,6 +72,9 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
     }
 
     @Test
+    /**
+     * verifies that the streams are not empty!
+     */
     public void testGetDatasetStreamFromDatasetList() throws Exception {
         List<String> IDsToDownload = new ArrayList<String>() {
             {
