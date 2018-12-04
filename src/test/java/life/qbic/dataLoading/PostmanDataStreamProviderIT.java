@@ -41,7 +41,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
 
         // is the stream NOT empty?
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
-        isStreamNotEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
+        isStreamEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
     }
 
     // TODO I could download the streams and compare the files
@@ -64,7 +64,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         // is the stream NOT empty?
         permIDs.forEach(dataSetFilePermId -> {
             try {
-                isStreamNotEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
+                isStreamEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -86,7 +86,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         // is the stream NOT empty?
         foundDataSets.forEach(dataSet -> {
             try {
-                isStreamNotEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
+                isStreamEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
             } catch (IOException e) {
                 e.printStackTrace();
             }

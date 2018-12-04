@@ -25,8 +25,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Super class for all tests which require A PostmanSession
@@ -77,13 +75,18 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
      * @param inputStream
      * @throws IOException
      */
-    protected void isStreamNotEmpty(final InputStream inputStream) throws IOException {
+    protected boolean isStreamEmpty(final InputStream inputStream) throws IOException {
         PushbackInputStream pushbackInputStream = new PushbackInputStream(inputStream);
 
         byte[] buffer = new byte[8 * 1024];
         int readBytes = pushbackInputStream.read(buffer);
-        assertThat(readBytes).isAtLeast(1);
-        pushbackInputStream.unread(readBytes);
+        if (readBytes > 1) {
+            assertThat(readBytes).isAtLeast(1);
+            pushbackInputStream.unread(readBytes);
+            return false;
+        } else {
+            return true;
+        }
     }
 
     /**
@@ -92,7 +95,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
      *
      * @param directoryPath
      */
-    protected static void createFolderIfNotExisting(final String directoryPath) {
+    protected void createFolderIfNotExisting(final String directoryPath) {
         new File(directoryPath).mkdirs();
     }
 
@@ -103,7 +106,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
      * @return count of all files in a specific folder
      * @throws IOException
      */
-    protected static long countFilesInDirectory(final String directoryPath) throws IOException {
+    protected long countFilesInDirectory(final String directoryPath) throws IOException {
         long count;
         try (Stream<Path> files = Files.list(Paths.get(directoryPath))) {
             count = files.count();
@@ -118,7 +121,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
      * @param fileExtension the extension to check for and count
      * @return
      */
-    protected static int countFileOfExtensionInDirectory(final String directoryPath, final String fileExtension) {
+    protected int countFileOfExtensionInDirectory(final String directoryPath, final String fileExtension) {
         Collection allFoundFiles = FileUtils.listFiles(new File(directoryPath), new String[]{fileExtension}, true);
         return allFoundFiles.size();
     }
@@ -129,7 +132,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
      * @param directoryPath
      * @return
      */
-    protected static long getFileSizeOfDirectory(final String directoryPath) {
+    protected long getFileSizeOfDirectory(final String directoryPath) {
         return FileUtils.sizeOfDirectory(new File(directoryPath));
     }
 
