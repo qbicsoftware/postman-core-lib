@@ -79,6 +79,13 @@ class RegexFilterUtil {
         return regexFilteredPermIDs
     }
 
+    /**
+     * Using dollar slashy regex of groovy to match all provided regex to filter the permIDs of dataSetFiles
+     *
+     * @param dataSetFiles to be filtered per permID
+     * @param regexPatterns to filter for
+     * @return
+     */
     static List<DataSetFile> filterDataSetFilesRegex(List<DataSetFile> dataSetFiles,
                                                      List<String> regexPatterns) {
         def regexFilteredDataSetFiles = new ArrayList()
