@@ -1,45 +1,26 @@
 package life.qbic;
 
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
-import life.qbic.dataLoading.PostmanDataDownloader;
-import life.qbic.dataLoading.PostmanDataFilterer;
-import life.qbic.dataLoading.PostmanDataStreamProvider;
-import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
-import life.qbic.dataLoading.PostmanDataFinder;
+import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.io.parser.PostmanPropertiesParser;
-import life.qbic.util.ProgressBar;
-import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-/**
- * Super class for all tests which require A PostmanSession
- * Furthermore, objects for all DataLoading operations are created and provided
- */
 public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
 
+    private SuperPostmanSessionSetupManagerForIntegrationTests postmanSessionSetupManagerForIntegrationTests = new SuperPostmanSessionSetupManagerForIntegrationTests();
+    private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/superPostmanSessionSetupManagerForIntegrationTestsTest";
+
     private static PostmanSessionManager postmanSessionManager;
-    private static PostmanDataFinder postmanDataFinder;
-    private static PostmanDataDownloader postmanDataDownloader;
-    private static PostmanDataStreamProvider postmanDataStreamProvider;
-    private static PostmanDataFilterer postmanDataFilterer;
 
     /**
      * setups PostmanSessionManager
@@ -53,22 +34,6 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
         PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
         postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
         postmanSessionManager.loginToOpenBIS(postmanConfig);
-
-        // create all dataloading objects
-        postmanDataFinder = new PostmanDataFinder(
-                postmanSessionManager.getApplicationServer(),
-                postmanSessionManager.getDataStoreServer(),
-                postmanSessionManager.getSessionToken()
-        );
-        postmanDataDownloader = new PostmanDataDownloader(
-                postmanSessionManager.getDataStoreServer(),
-                postmanSessionManager.getSessionToken()
-        );
-        postmanDataStreamProvider = new PostmanDataStreamProvider(
-                postmanSessionManager.getDataStoreServer(),
-                postmanSessionManager.getSessionToken()
-        );
-        postmanDataFilterer = new PostmanDataFilterer();
     }
 
     /**
@@ -77,6 +42,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     @Test
     public void testLoggedIn() {
         assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+        assertEquals(postmanSessionManager.getPostmanSessionManagerStatus(), PostmanSessionManager.PostmanSessionManagerStatus.LOGGED_IN);
     }
 
     /**
@@ -85,132 +51,84 @@ public class SuperPostmanSessionSetupManagerForIntegrationTestsIT {
     @Test
     public void testLogout() {
         assertTrue(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
-        postmanSessionManager.getApplicationServer().logout(postmanSessionManager.getSessionToken());
-        assertFalse(postmanSessionManager.getApplicationServer().isSessionActive(postmanSessionManager.getSessionToken()));
+        assertEquals(postmanSessionManager.getPostmanSessionManagerStatus(), PostmanSessionManager.PostmanSessionManagerStatus.LOGGED_IN);
+        postmanSessionManager.logoutFromOpenBIS();
+        assertEquals(postmanSessionManager.getPostmanSessionManagerStatus(), PostmanSessionManager.PostmanSessionManagerStatus.LOGGED_OUT);
     }
 
-    // TODO maybe add this stuff below (all of it) to our core lib
     /**
-     * tests whether or not an Inputstream contains any data or not
+     * tests two sample inputstreams - one not empty, the other one being empty
      *
-     * @param inputStream
      * @throws IOException
      */
-    protected void testStreamIsNotEmpty(final InputStream inputStream) throws IOException {
-        PushbackInputStream pushbackInputStream = new PushbackInputStream(inputStream);
+    @Test
+    public void testIsStreamNotEmpty() throws IOException {
+        final String nonEmptyString = "gfnxdfgloys";
+        final InputStream nonEmptyInputStream = new ByteArrayInputStream(nonEmptyString.getBytes());
 
-        byte[] buffer = new byte[8 * 1024];
-        int readBytes = pushbackInputStream.read(buffer);
-        assertThat(readBytes).isAtLeast(1);
-        pushbackInputStream.unread(readBytes);
+        assertFalse(postmanSessionSetupManagerForIntegrationTests.isStreamEmpty(nonEmptyInputStream));
+
+        final String emptyString = "";
+        final InputStream emptyInputStream = new ByteArrayInputStream(emptyString.getBytes());
+
+        assertTrue(postmanSessionSetupManagerForIntegrationTests.isStreamEmpty(emptyInputStream));
     }
 
     /**
-     * Downloads all inputstreams into a specified folder
+     * attempts to create folder in a specified directory
+     * attempts to create a folder over an already existing folder
      *
-     * @param IDToInputStreams usually IDs to lists of provided inputstreams
-     * @param outputPath path to the folder to download all files into
-     * @throws IOException
      */
-    protected void downloadInputStreams(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
-        int buffersize = 1024;
-        for (Map.Entry<String, List<InputStream>> entry : IDToInputStreams.entrySet()) {
-            for (InputStream inputStream : entry.getValue()) {
-                DataSetFileDownloadReader reader = new DataSetFileDownloadReader(inputStream);
-                DataSetFileDownload file;
+    @Test
+    public void testCreateFolderIfNotExisting() {
+        final String sampleFilePath = DOWNLOADED_FILES_OUTPUT_PATH + "/testCreateFolderIfNotExisting";
 
-                while ((file = reader.read()) != null) {
-                    InputStream initialStream = file.getInputStream();
+        postmanSessionSetupManagerForIntegrationTests.createFolderIfNotExisting(sampleFilePath);
+        assertTrue(new File(sampleFilePath).exists());
 
-                    if (file.getDataSetFile().getFileLength() > 0) {
-                        String[] splitted = file.getDataSetFile().getPath().split("/");
-                        String lastOne = splitted[splitted.length - 1];
-                        OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
-                        ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
-                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
-                        byte[] buffer = new byte[bufferSize];
-                        int bytesRead;
-                        //read from IS to buffer
-                        while ((bytesRead = initialStream.read(buffer)) != -1) {
-                            progressBar.updateProgress(bufferSize);
-                            os.write(buffer, 0, bytesRead);
-                            os.flush();
-                        }
-
-                        System.out.print("\n");
-                        initialStream.close();
-
-                        os.flush();
-                        os.close();
-                    }
-
-                }
-            }
-        }
-
+        // file exists now - lets try again
+        postmanSessionSetupManagerForIntegrationTests.createFolderIfNotExisting(sampleFilePath);
+        assertTrue(new File(sampleFilePath).exists());
     }
 
     /**
-     * creates a folder in a specified path if there doesn't exist folder yet
-     * mkdirs simply does nothing if the folder already exists
+     * verifies the number of files count matches of a prespecified directory
      *
-     * @param directoryPath
      */
-    protected static void createFolderIfNotExisting(final String directoryPath) {
-        new File(directoryPath).mkdirs();
+    @Test
+    public void testCountFilesInDirectory() throws IOException {
+        final String pathToTest = DOWNLOADED_FILES_OUTPUT_PATH + "/testCountFilesInDirectory";
+
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.countFilesInDirectory(pathToTest), 4);
     }
 
     /**
-     * counts all files in a specified folder no matter the extension
-     *
-     * @param directoryPath path to the folder to count
-     * @return count of all files in a specific folder
-     * @throws IOException
+     * verifies that the file extensions of a prespecified directory match
      */
-    protected static long countFilesInDirectory(final String directoryPath) throws IOException {
-        long count;
-        try (Stream<Path> files = Files.list(Paths.get(directoryPath))) {
-            count = files.count();
-            return count;
-        }
+    @Test
+    public void testCountFileOfExtensionInDirectory() {
+        final String pathToTest = DOWNLOADED_FILES_OUTPUT_PATH + "/testCountFileOfExtensionInDirectory";
+
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.countFileOfExtensionInDirectory(pathToTest, "pdf"), 0);
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.countFileOfExtensionInDirectory(pathToTest, "txt"), 2);
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.countFileOfExtensionInDirectory(pathToTest, "json"), 1);
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.countFileOfExtensionInDirectory(pathToTest, "xml"), 1);
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.countFileOfExtensionInDirectory(pathToTest, "png"), 0);
     }
 
     /**
-     * counts the occurrences of a specific file extension in a specified folder
-     *
-     * @param directoryPath path to the folder to check
-     * @param fileExtension the extension to check for and count
-     * @return
+     * verifies that the cumulated file sizes match of a prespecified directory
      */
-    protected static int countFileOfExtensionInDirectory(final String directoryPath, final String fileExtension) {
-        Collection allFoundFiles = FileUtils.listFiles(new File(directoryPath), new String[]{fileExtension}, true);
-        return allFoundFiles.size();
+    @Test
+    public void testGetFileSizeOfDirectory() {
+        final String pathToTest = DOWNLOADED_FILES_OUTPUT_PATH + "/testGetFileSizeOfDirectory";
+
+        assertEquals(postmanSessionSetupManagerForIntegrationTests.getFileSizeOfDirectory(pathToTest), 716);
     }
 
-    /**
-     * counts the filesizes of a directory as bytes
-     *
-     * @param directoryPath
-     * @return
-     */
-    protected static long getFileSizeOfDirectory(final String directoryPath) {
-        return FileUtils.sizeOfDirectory(new File(directoryPath));
-    }
+    @Test
+    @Ignore // for now this is not needed
+    public void testDownloadInputStreams() {
 
-    protected static PostmanDataFinder getPostmanDataFinder() {
-        return postmanDataFinder;
-    }
-
-    protected static PostmanDataDownloader getPostmanDataDownloader() {
-        return postmanDataDownloader;
-    }
-
-    protected static PostmanDataStreamProvider getPostmanDataStreamProvider() {
-        return postmanDataStreamProvider;
-    }
-
-    protected static PostmanDataFilterer getPostmanDataFilterer() {
-        return postmanDataFilterer;
     }
 }
-

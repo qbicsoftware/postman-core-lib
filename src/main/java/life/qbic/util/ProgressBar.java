@@ -9,6 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+/**
+ * Provides a progressbar which can be used to visualize the download of files.
+ * The progressbar provides the current status, the time remaining for the download and the current download speed.
+ */
 public class ProgressBar {
 
     private float nextProgressJump;
@@ -35,6 +39,11 @@ public class ProgressBar {
         this.remainingTime = 0L;
     }
 
+    /**
+     * updates the bar, the remaining download time and the current download speed
+     *
+     * @param addDownloadedSize how many bytes have just been downloaded?
+     */
     public void updateProgress(int addDownloadedSize){
         this.downloadedSize += (long) addDownloadedSize;
         checkForJump();

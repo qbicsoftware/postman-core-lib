@@ -3,7 +3,7 @@ package life.qbic.dataLoading;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTestsIT;
+import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTests;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.testConfigurations.IntegrationTest;
 import life.qbic.testConfigurations.Slow;
@@ -14,12 +14,23 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * TODO SOMETHING IS VERY WRONG HERE
+ * All the tests in this class run manually and solely isolated - they are running fine
+ * Running the whole test class however leads to tests being stuck at the downloadFiles method of openBIS!
+ */
+
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForIntegrationTestsIT {
+public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManagerForIntegrationTests {
 
     private static PostmanDataStreamProvider postmanDataStreamProvider = getPostmanDataStreamProvider();
     private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/postmanDataStreamProviderTest";
 
+    /**
+     * verifies that the streams are not empty!
+     *
+     * @throws IOException
+     */
     @Test
     public void testProvideSingleInputStreamForIDs() throws IOException {
         List<String> IDsToDownload = new ArrayList<String>() {
@@ -30,10 +41,14 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
 
         // is the stream NOT empty?
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
-        testStreamIsNotEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
+        isStreamEmpty(postmanDataStreamProvider.provideSingleInputStreamForIDs(IDsToDownload, postmanFilterOptions, getPostmanDataFinder()));
     }
 
     // TODO I could download the streams and compare the files
+
+    /**
+     * verifies that the streams are not empty!
+     */
     @Test
     public void testProvideInputStreamForPermID() {
         List<DataSetFilePermId> permIDs = new ArrayList<DataSetFilePermId>() {
@@ -49,7 +64,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         // is the stream NOT empty?
         permIDs.forEach(dataSetFilePermId -> {
             try {
-                testStreamIsNotEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
+                isStreamEmpty(postmanDataStreamProvider.provideInputStreamForPermID(dataSetFilePermId));
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -57,6 +72,9 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
     }
 
     @Test
+    /**
+     * verifies that the streams are not empty!
+     */
     public void testGetDatasetStreamFromDatasetList() throws Exception {
         List<String> IDsToDownload = new ArrayList<String>() {
             {
@@ -68,7 +86,7 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         // is the stream NOT empty?
         foundDataSets.forEach(dataSet -> {
             try {
-                testStreamIsNotEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
+                isStreamEmpty(postmanDataStreamProvider.getDatasetStreamFromDatasetList(dataSet));
             } catch (IOException e) {
                 e.printStackTrace();
             }

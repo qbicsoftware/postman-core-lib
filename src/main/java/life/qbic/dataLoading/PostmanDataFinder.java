@@ -48,7 +48,7 @@ public class PostmanDataFinder {
     /**
      * Finds all datasets of a given sampleID, even those of its children - recursively
      *
-     * @param sampleId
+     * @param sampleId id to find all datasets for
      * @return all found datasets for a given sampleID
      */
     public List<DataSet> findAllDatasetsRecursive(final String sampleId) {
@@ -79,7 +79,7 @@ public class PostmanDataFinder {
     /**
      * Fetches all datasets, even those of children - recursively
      *
-     * @param sample
+     * @param sample sample to find all datasets for
      * @return all recursively found datasets
      */
     private static List<DataSet> fetchDescendantDatasets(final Sample sample) {
@@ -99,8 +99,8 @@ public class PostmanDataFinder {
      * Calls groovy code
      * Filters all IDs by provided regex patterns
      *
-     * @param ident
-     * @param regexPatterns
+     * @param ident identifier to find all IDs for
+     * @param regexPatterns regex patterns which are applied as filters
      * @return
      */
     List<DataSetFilePermId> findAllRegexFilteredPermIDs(final String ident, final List<String> regexPatterns) {
@@ -112,8 +112,8 @@ public class PostmanDataFinder {
     /**
      * Finds all IDs of files filtered by a suffix
      *
-     * @param ident
-     * @param suffixes
+     * @param ident identifier to find all IDs for
+     * @param suffixes suffixes which are applied as filters
      * @return
      */
     public List<DataSetFilePermId> findAllSuffixFilteredPermIDs(final String ident, final List<String> suffixes) {
@@ -139,10 +139,15 @@ public class PostmanDataFinder {
         return allFileIDs;
     }
 
-    public List<DataSet> findAllTypeFilteredPermIDs(final String ident, final String filterType) {
+    /**
+     *
+     * @param ident identifier to find all IDs for
+     * @param fileType filetype which is used for filtering
+     * @return all datasets which were filtered by fileType
+     */
+    public List<DataSet> findAllTypeFilteredDataSets(final String ident, final String fileType) {
         SampleSearchCriteria criteria = new SampleSearchCriteria();
         criteria.withCode().thatEquals(ident);
-        List<DataSetPermId> allFileIDs = new ArrayList<>();
 
         // tell the API to fetch all descendants for each returned sample
         SampleFetchOptions fetchOptions = new SampleFetchOptions();
@@ -164,7 +169,7 @@ public class PostmanDataFinder {
 
         List<DataSet> filteredDatasets = new ArrayList<>();
         for (DataSet ds : foundDatasets){
-            if (filterType.equals(ds.getType().getCode())){
+            if (fileType.equals(ds.getType().getCode())){
                 filteredDatasets.add(ds);
             }
         }
@@ -176,8 +181,8 @@ public class PostmanDataFinder {
     /**
      * Finds all IDs of files - no filtering applied
      *
-     * @param ident
-     * @return
+     * @param ident identifier to find all IDs for
+     * @return all permIDs without any filtering applied
      */
     public List<DataSetFilePermId> findAllPermIDs(final String ident) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);

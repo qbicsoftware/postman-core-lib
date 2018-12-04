@@ -3,10 +3,12 @@ package life.qbic.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Provides string utility functions.
+ */
 public final class StringUtil {
 
     private final static Logger LOG = LogManager.getLogger(StringUtil.class);
-
 
     private StringUtil() {
         throw new AssertionError("Instantiating StringUtil class");

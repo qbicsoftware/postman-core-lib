@@ -1,5 +1,10 @@
 package life.qbic.core.authentication;
 
+/**
+ * Container used to define all required information for logging into openBIS.
+ *
+ * Commonly passed to the PostmanSessionManager to login to openBIS.
+ */
 public class PostmanConfig {
 
     private String as_url;

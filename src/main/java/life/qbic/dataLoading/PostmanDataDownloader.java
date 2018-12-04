@@ -50,8 +50,10 @@ public class PostmanDataDownloader {
     /**
      * Downloads the files that the user requested
      * checks whether any filtering option (suffix or regex) has been passed and applies filtering if needed
-     * @param IDs
-     * @param postmanFilterOptions
+     * @param IDs specifies the IDs which are subsequently downloaded
+     * @param postmanFilterOptions required to filter any data - pass it with empty lists of different filter options to download files without any filtering
+     * @param postmanDataFinder required to find the data before downloading
+     * @param outputPath where the files are downloaded to
      * @throws IOException
      */
     public void downloadRequestedFilesOfDatasets(final List<String> IDs,
@@ -82,15 +84,15 @@ public class PostmanDataDownloader {
                 downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
             }
             // filter type was specified
-        } else if (!postmanFilterOptions.getFilterType().isEmpty()) {
-            if (!SupportedFileTypes.getSupportedFilterTypes().keySet().contains(postmanFilterOptions.getFilterType())) {
-                LOG.error("Provided file filter type " + postmanFilterOptions.getFilterType() + " is not supported!");
+        } else if (!postmanFilterOptions.getFileType().isEmpty()) {
+            if (!SupportedFileTypes.getSupportedFilterTypes().keySet().contains(postmanFilterOptions.getFileType())) {
+                LOG.error("Provided file filter type " + postmanFilterOptions.getFileType() + " is not supported!");
                 LOG.warn("Filtering may not be applied!");
             }
 
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredPermIDs(ident, postmanFilterOptions.getFilterType());
+                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredDataSets(ident, postmanFilterOptions.getFileType());
 
                 LOG.info(String.format("Number of files found: %s", foundTypeFilteredIDs.size()));
 
@@ -132,8 +134,9 @@ public class PostmanDataDownloader {
     /**
      * Downloads all IDs which were previously filtered by either suffixes or regexPatterns
      *
-     * @param ident
-     * @param foundFilteredIDs
+     * @param ident current identifier to be downloaded
+     * @param foundFilteredIDs IDs which were earlier filtered
+     * @param outputPath path to write all downloaded files to
      * @throws IOException
      */
     void downloadFilesFilteredByIDs(final String ident,
@@ -162,9 +165,9 @@ public class PostmanDataDownloader {
     /**
      * Downloads files that have been found after filtering for suffixes/regexPatterns by a list of supplied IDs
      *
-     * @param filteredIDs
+     * @param filteredIDs IDs which were earlier filtered
      * @param outputPath path to write all downloaded files to
-     * @return exitcode
+     * @return exitcode: 0 if successful
      * @throws IOException
      */
     private int downloadFilesByID(final List<DataSetFilePermId> filteredIDs, final String outputPath) throws IOException{

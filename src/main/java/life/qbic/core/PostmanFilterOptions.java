@@ -3,21 +3,26 @@ package life.qbic.core;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Container for filter options (suffixes, regex, filetype)
+ *
+ * Commonly passed to the PostmanDataFilterer.
+ */
 public class PostmanFilterOptions {
 
     private List<String> suffixes;
     private List<String> regexPatterns;
-    private String filterType = "";
+    private String fileType = "";
 
     public PostmanFilterOptions() {
         this.suffixes = new ArrayList<>();
         this.regexPatterns = new ArrayList<>();
     }
 
-    public PostmanFilterOptions(List<String> suffixes, List<String> regexPatterns, String filterType) {
+    public PostmanFilterOptions(List<String> suffixes, List<String> regexPatterns, String fileType) {
         this.suffixes = suffixes;
         this.regexPatterns = regexPatterns;
-        this.filterType = filterType;
+        this.fileType = fileType;
     }
 
     public List<String> getSuffixes() {
@@ -36,11 +41,11 @@ public class PostmanFilterOptions {
         this.regexPatterns = regexPatterns;
     }
 
-    public String getFilterType() {
-        return filterType;
+    public String getFileType() {
+        return fileType;
     }
 
-    public void setFilterType(String filterType) {
-        this.filterType = filterType;
+    public void setFileType(String fileType) {
+        this.fileType = fileType;
     }
 }

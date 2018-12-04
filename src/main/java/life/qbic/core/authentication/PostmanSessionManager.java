@@ -17,7 +17,7 @@ public class PostmanSessionManager {
     /**
      * enum specifying the current status of PostmanSessionManager
      */
-    private enum PostmanSessionManagerStatus {
+    public enum PostmanSessionManagerStatus {
         LOGGED_IN,
         LOGGED_OUT
     }
@@ -96,7 +96,7 @@ public class PostmanSessionManager {
      * logs out from OpenBIS
      * resets the sessiontoken -> null
      */
-    void logoutFromOpenBIS() {
+    public void logoutFromOpenBIS() {
         if (applicationServer.isSessionActive(sessionToken)) {
             applicationServer.logout(sessionToken);
             sessionToken = null;
