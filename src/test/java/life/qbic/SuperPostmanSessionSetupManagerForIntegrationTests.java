@@ -2,7 +2,7 @@ package life.qbic;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
-import life.qbic.dataLoading.PostmanDataDownloader;
+import life.qbic.dataLoading.PostmanDataDownloaderV3;
 import life.qbic.dataLoading.PostmanDataFilterer;
 import life.qbic.dataLoading.PostmanDataStreamProvider;
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
@@ -33,7 +33,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
 
     private static PostmanSessionManager postmanSessionManager;
     private static PostmanDataFinder postmanDataFinder;
-    private static PostmanDataDownloader postmanDataDownloader;
+    private static PostmanDataDownloaderV3 postmanDataDownloaderV3;
     private static PostmanDataStreamProvider postmanDataStreamProvider;
     private static PostmanDataFilterer postmanDataFilterer;
 
@@ -56,7 +56,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
-        postmanDataDownloader = new PostmanDataDownloader(
+        postmanDataDownloaderV3 = new PostmanDataDownloaderV3(
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
@@ -75,16 +75,17 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
      * @throws IOException
      */
     protected boolean isStreamEmpty(final InputStream inputStream) throws IOException {
-        PushbackInputStream pushbackInputStream = new PushbackInputStream(inputStream);
+        try (PushbackInputStream pushbackInputStream = new PushbackInputStream(inputStream)) {
+            byte[] buffer = new byte[8 * 1024];
+            int readBytes = pushbackInputStream.read(buffer);
+            if (readBytes > 1) {
+                assertThat(readBytes).isAtLeast(1);
+                pushbackInputStream.unread(readBytes);
 
-        byte[] buffer = new byte[8 * 1024];
-        int readBytes = pushbackInputStream.read(buffer);
-        if (readBytes > 1) {
-            assertThat(readBytes).isAtLeast(1);
-            pushbackInputStream.unread(readBytes);
-            return false;
-        } else {
-            return true;
+                return false;
+            } else {
+                return true;
+            }
         }
     }
 
@@ -135,57 +136,57 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
         return FileUtils.sizeOfDirectory(new File(directoryPath));
     }
 
-    /**
-     * Downloads all inputstreams into a specified folder
-     *
-     * @param IDToInputStreams usually IDs to lists of provided inputstreams
-     * @param outputPath path to the folder to download all files into
-     * @throws IOException
-     */
-    protected void downloadInputStreams(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
-        int buffersize = 1024;
-        for (Map.Entry<String, List<InputStream>> entry : IDToInputStreams.entrySet()) {
-            for (InputStream inputStream : entry.getValue()) {
-                DataSetFileDownloadReader reader = new DataSetFileDownloadReader(inputStream);
-                DataSetFileDownload file;
-
-                while ((file = reader.read()) != null) {
-                    InputStream initialStream = file.getInputStream();
-
-                    if (file.getDataSetFile().getFileLength() > 0) {
-                        String[] splitted = file.getDataSetFile().getPath().split("/");
-                        String lastOne = splitted[splitted.length - 1];
-                        OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
-                        ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
-                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
-                        byte[] buffer = new byte[bufferSize];
-                        int bytesRead;
-                        //read from IS to buffer
-                        while ((bytesRead = initialStream.read(buffer)) != -1) {
-                            progressBar.updateProgress(bufferSize);
-                            os.write(buffer, 0, bytesRead);
-                            os.flush();
-                        }
-
-                        System.out.print("\n");
-                        initialStream.close();
-
-                        os.flush();
-                        os.close();
-                    }
-
-                }
-            }
-        }
-
-    }
+//    /**
+//     * Downloads all inputstreams into a specified folder
+//     *
+//     * @param IDToInputStreams usually IDs to lists of provided inputstreams
+//     * @param outputPath path to the folder to download all files into
+//     * @throws IOException
+//     */
+//    protected void downloadInputStreams(final Map<String, List<InputStream>> IDToInputStreams, final String outputPath) throws IOException {
+//        int buffersize = 1024;
+//        for (Map.Entry<String, List<InputStream>> entry : IDToInputStreams.entrySet()) {
+//            for (InputStream inputStream : entry.getValue()) {
+//                DataSetFileDownloadReader reader = new DataSetFileDownloadReader(inputStream);
+//                DataSetFileDownload file;
+//
+//                while ((file = reader.read()) != null) {
+//                    InputStream initialStream = file.getInputStream();
+//
+//                    if (file.getDataSetFile().getFileLength() > 0) {
+//                        String[] splitted = file.getDataSetFile().getPath().split("/");
+//                        String lastOne = splitted[splitted.length - 1];
+//                        OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
+//                        ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
+//                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
+//                        byte[] buffer = new byte[bufferSize];
+//                        int bytesRead;
+//                        //read from IS to buffer
+//                        while ((bytesRead = initialStream.read(buffer)) != -1) {
+//                            progressBar.updateProgress(bufferSize);
+//                            os.write(buffer, 0, bytesRead);
+//                            os.flush();
+//                        }
+//
+//                        System.out.print("\n");
+//                        initialStream.close();
+//
+//                        os.flush();
+//                        os.close();
+//                    }
+//
+//                }
+//            }
+//        }
+//
+//    }
 
     protected static PostmanDataFinder getPostmanDataFinder() {
         return postmanDataFinder;
     }
 
-    protected static PostmanDataDownloader getPostmanDataDownloader() {
-        return postmanDataDownloader;
+    protected static PostmanDataDownloaderV3 getPostmanDataDownloaderV3() {
+        return postmanDataDownloaderV3;
     }
 
     protected static PostmanDataStreamProvider getPostmanDataStreamProvider() {
