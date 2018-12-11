@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>life.qbic</groupId>
 	<artifactId>postman-core-lib</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>Postman Core Library</name>
 	<url>http://github.com/qbicsoftware/postman-core-lib</url>
 
@@ -82,6 +82,37 @@
             <artifactId>openbis_api</artifactId>
             <version>3-S253.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>life.qbic.openbis</groupId>
+            <artifactId>csid-base</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>life.qbic.openbis</groupId>
+            <artifactId>dss_client</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>life.qbic.openbis</groupId>
+            <artifactId>raw-data-api</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>life.qbic.openbis</groupId>
+            <artifactId>spring</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>life.qbic.openbis</groupId>
+            <artifactId>stream-supporting-httpinvoker</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
     </dependencies>
 
     <build>

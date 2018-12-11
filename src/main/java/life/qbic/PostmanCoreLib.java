@@ -1,9 +1,10 @@
 package life.qbic;
 
 
-import life.qbic.core.SupportedFileTypes;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+
 
 public class PostmanCoreLib {
 

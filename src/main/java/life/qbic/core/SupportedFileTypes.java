@@ -1,7 +1,11 @@
 package life.qbic.core;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 /**
  * Container for all supported file types which can be used for data filtering.
@@ -119,14 +123,23 @@ public class SupportedFileTypes {
      */
     public static void printSupportedFileTypes() {
         System.out.println("FileFormat: description \n");
-        supportedFilterTypes.forEach((fileFormat, description) -> {
-            System.out.println(fileFormat + ": " + wrapText(description, 80));
-        });
+        supportedFilterTypes.forEach((fileFormat, description) -> System.out.println(fileFormat + ": " + wrapText(description, 80)));
+    }
+
+    /**
+     * provides an inputstream for the supported file types in human readable format
+     */
+    public static InputStream supportedFileTypesFormatted() {
+        final String formattedFileTypes = supportedFilterTypes.entrySet().stream()
+                .map(entry -> entry.getKey() + ": " + wrapText(entry.getValue(), 80))
+                .collect(Collectors.joining());
+
+        return new ByteArrayInputStream(formattedFileTypes.getBytes());
     }
 
     /**
      * wraps text into a more human readable format
-     * ensures, that words are still together and not split somewhere inbetween
+     * ensures, that words are still together and not split somewhere in between
      *
      * @param stringToWrap string to make human readable
      * @param textWidth specifies the max length of a single line -> else new line + two tab characters

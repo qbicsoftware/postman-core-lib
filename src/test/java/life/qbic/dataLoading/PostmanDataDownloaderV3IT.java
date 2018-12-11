@@ -19,9 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 
 @Category({IntegrationTest.class, Slow.class})
-public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForIntegrationTests {
+public class PostmanDataDownloaderV3IT extends SuperPostmanSessionSetupManagerForIntegrationTests {
 
-    private static PostmanDataDownloader postmanDataDownloader = getPostmanDataDownloader();
+    private static PostmanDataDownloaderV3 postmanDataDownloaderV3 = getPostmanDataDownloaderV3();
     private final String DOWNLOADED_FILES_OUTPUT_PATH = "src/test/ITOutput/postmanDataDownloaderTest";
 
     @Test
@@ -36,7 +36,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForI
         final long expectedNumberOfFiles = 176;
 
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
-        postmanDataDownloader.downloadRequestedFilesOfDatasets(IDsToDownload,
+        postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(IDsToDownload,
                                                                postmanFilterOptions,
                                                                getPostmanDataFinder(),
                                                                OUTPUTPATH);
@@ -94,7 +94,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForI
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setSuffixes(suffixes);
 
-        postmanDataDownloader.downloadRequestedFilesOfDatasets(IDsToDownload,
+        postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
                 getPostmanDataFinder(),
                 OUTPUTPATH);
@@ -145,7 +145,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForI
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setRegexPatterns(regexes);
 
-        postmanDataDownloader.downloadRequestedFilesOfDatasets(IDsToDownload,
+        postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
                 getPostmanDataFinder(),
                 OUTPUTPATH);
@@ -182,7 +182,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForI
 
         final long expectedNumberOfFiles = 5;
 
-        postmanDataDownloader.downloadFilesFilteredByIDs(IDsToDownload.get(0),
+        postmanDataDownloaderV3.downloadFilesFilteredByIDs(IDsToDownload.get(0),
                                                          expectedIDs,
                                                          OUTPUTPATH);
 
@@ -219,7 +219,7 @@ public class PostmanDataDownloaderIT extends SuperPostmanSessionSetupManagerForI
 
     @Test
     public void testDownloadDataset() {
-        // tested via public interfaces of all methods of PostmanDataDownloader
+        // tested via public interfaces of all methods of PostmanDataDownloaderV3
     }
 
 }
