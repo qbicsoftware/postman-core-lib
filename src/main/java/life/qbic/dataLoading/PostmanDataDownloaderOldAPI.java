@@ -238,7 +238,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
             FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/", true);
             List<FileInfoDssDTO> fileInfosList = Arrays.asList(fileInfos);
 
-            // for some reason we have to filter this twice, as they still contain files which don't have the suffix
+            // for some reason we have to filter this twice, as they still contain files which don't have the regex
             List<FileInfoDssDTO> filteredFileInfosList = new ArrayList<>();
 
             regexes.forEach(regex -> {
