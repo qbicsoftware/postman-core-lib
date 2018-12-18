@@ -25,7 +25,7 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
     private IDataStoreServerApi dataStoreServer;
     private String sessionToken;
 
-    private final int DEFAULTBUFFERSIZE = 1024;
+    private final int DEFAULTBUFFERSIZE = 8192;
     private int buffersize = DEFAULTBUFFERSIZE;
 
 
@@ -187,8 +187,7 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
                         String lastOne = splitted[splitted.length - 1];
                         OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
                         ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
-                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ?
-                                (int) file.getDataSetFile().getFileLength() : buffersize;
+                        int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
                         byte[] buffer = new byte[bufferSize];
                         int bytesRead;
                         //read from is to buffer
@@ -218,7 +217,7 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
      * Download a given list of datasets
      * There was no filtering applied here!
      *
-     * @param dataSetList A list of datasets
+     * @param dataSetList A list of datasets to download
      * @param outputPath  path to write all downloaded files to
      * @return 0 if successful, 1 else
      */
@@ -236,20 +235,20 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
                 InputStream initialStream = file.getInputStream();
 
                 if (file.getDataSetFile().getFileLength() > 0) {
-                    String[] splitted = file.getDataSetFile().getPath().split("/");
-                    String lastOne = splitted[splitted.length - 1];
-                    OutputStream os = new FileOutputStream(outputPath + File.separator + lastOne);
-                    ProgressBar progressBar = new ProgressBar(lastOne, file.getDataSetFile().getFileLength());
+                    String[] splittedPath = file.getDataSetFile().getPath().split("/");
+                    String fileName = splittedPath[splittedPath.length - 1];
+                    OutputStream os = new FileOutputStream(outputPath + File.separator + fileName);
+                    ProgressBar progressBar = new ProgressBar(fileName, file.getDataSetFile().getFileLength());
                     int bufferSize = (file.getDataSetFile().getFileLength() < buffersize) ? (int) file.getDataSetFile().getFileLength() : buffersize;
                     byte[] buffer = new byte[bufferSize];
                     int bytesRead;
-                    //read from is to buffer
+
                     while ((bytesRead = initialStream.read(buffer)) != -1) {
                         progressBar.updateProgress(bufferSize);
                         os.write(buffer, 0, bytesRead);
                         os.flush();
-
                     }
+
                     System.out.print("\n");
                     initialStream.close();
 
