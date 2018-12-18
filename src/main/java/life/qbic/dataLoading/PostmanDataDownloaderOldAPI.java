@@ -1,7 +1,6 @@
 package life.qbic.dataLoading;
 
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
-import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.DssComponentFactory;
 import ch.systemsx.cisd.openbis.dss.client.api.v1.IDataSetDss;
@@ -14,7 +13,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This uses the old and deprecated openBIS API!
@@ -55,7 +56,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
-                downloadFilesFilteredByIDs(ident, foundSuffixFilteredIDs, outputPath);
+                downloadFilesFilteredByIDsSuffix(postmanFilterOptions.getSuffixes(), foundSuffixFilteredIDs, outputPath);
             }
             // a regex pattern was provided -> only download files which contain the regex pattern
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
@@ -65,7 +66,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
-                downloadFilesFilteredByIDs(ident, foundRegexFilteredIDs, outputPath);
+//                downloadFilesFilteredByIDsSuffix(ident, foundRegexFilteredIDs, outputPath);
             }
             // filter type was specified
         } else if (!postmanFilterOptions.getFileType().isEmpty()) {
@@ -122,7 +123,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      * @throws IOException thrown if an error occurs while downloading
      */
     private int downloadDataset(final List<DataSet> dataSets, final String outputPath) {
-        IDssComponent component = DssComponentFactory.tryCreate(sessionToken, asURL);
+        final IDssComponent component = DssComponentFactory.tryCreate(sessionToken, asURL);
 
         for (DataSet dataSet : dataSets) {
             IDataSetDss dataSetDss = component.getDataSet(dataSet.getCode());
@@ -161,8 +162,59 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
         return 0;
     }
 
-    @Override
-    public void downloadFilesFilteredByIDs(final String ident, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) throws IOException {
+    /**
+     *
+     * @param foundFilteredIDs
+     * @param outputPath
+     * @throws IOException
+     */
+    public void downloadFilesFilteredByIDsSuffix(final List<String> suffixes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
+        List<String> dataSetCodes = foundFilteredIDs.stream()
+                .map(dataSetFilePermId -> dataSetFilePermId.getDataSetId().toString())
+                .collect(Collectors.toList());
 
+        final IDssComponent component = DssComponentFactory.tryCreate(sessionToken, asURL);
+
+        dataSetCodes.forEach(dataSetCode -> {
+            IDataSetDss dataSetDss = component.getDataSet(dataSetCode);
+            FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/", true);
+
+            List<FileInfoDssDTO> filteredFileInfosList = new ArrayList<>();
+            suffixes.forEach(suffix -> {
+                for (FileInfoDssDTO fileInfo : fileInfos) {
+                    if (fileInfo.getPathInDataSet().endsWith(suffix)) {
+                        filteredFileInfosList.add(fileInfo);
+                    }
+                }
+            });
+
+            for (FileInfoDssDTO fileInfo : filteredFileInfosList) {
+                if (!fileInfo.isDirectory() && fileInfo.getFileSize() > 0) {
+                    try (InputStream is = dataSetDss.getFile(fileInfo.getPathInDataSet())) {
+                        String[] splittedPath = fileInfo.getPathInDataSet().split("/");
+                        String fileName = splittedPath[splittedPath.length - 1];
+                        try (OutputStream os = new FileOutputStream(outputPath + File.separator + fileName)) {
+                            ProgressBar progressBar = new ProgressBar(fileName, fileInfo.getFileSize());
+                            int bufferSize = (fileInfo.getFileSize() < buffersize) ? (int) fileInfo.getFileSize() : buffersize;
+                            byte[] buffer = new byte[buffersize];
+                            int bytesRead;
+
+                            while ((bytesRead = is.read(buffer)) != -1) {
+                                progressBar.updateProgress(bufferSize);
+                                os.write(buffer, 0, bytesRead);
+                                os.flush();
+                            }
+
+                            System.out.print("\n");
+                            is.close();
+
+                            os.flush();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
 }

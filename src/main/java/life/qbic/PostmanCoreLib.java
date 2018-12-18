@@ -25,6 +25,9 @@ public class PostmanCoreLib {
         List<String> ids = new ArrayList<>();
         ids.add("/CONFERENCE_DEMO/QTGPR014A2");
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
+        List<String> suffixes = new ArrayList<>();
+        suffixes.add(".pdf");
+        postmanFilterOptions.setSuffixes(suffixes);
 
         PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
         PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
@@ -41,13 +44,13 @@ public class PostmanCoreLib {
         long duration = (endTime - startTime);
         System.out.println("old API" + duration);
 
-        long startTime2 = System.nanoTime();
-        PostmanDataDownloaderV3 postmanDataDownloaderV3 = new PostmanDataDownloaderV3(postmanSessionManager.getDataStoreServer(), postmanSessionManager.getSessionToken());
-        postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(ids, postmanFilterOptions, postmanDataFinder, "/home/lukas/Desktop/postman_output/");
-        long endTime2 = System.nanoTime();
-
-        long duration2 = (endTime2 - startTime2);
-        System.out.println("new API" + duration2);
+//        long startTime2 = System.nanoTime();
+//        PostmanDataDownloaderV3 postmanDataDownloaderV3 = new PostmanDataDownloaderV3(postmanSessionManager.getDataStoreServer(), postmanSessionManager.getSessionToken());
+//        postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(ids, postmanFilterOptions, postmanDataFinder, "/home/lukas/Desktop/postman_output/");
+//        long endTime2 = System.nanoTime();
+//
+//        long duration2 = (endTime2 - startTime2);
+//        System.out.println("new API" + duration2);
     }
 
 }
