@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
-//                downloadFilesFilteredByIDsSuffix(ident, foundRegexFilteredIDs, outputPath);
+                downloadFilesFilteredByIDsRegex(postmanFilterOptions.getRegexPatterns(), foundRegexFilteredIDs, outputPath);
             }
             // filter type was specified
         } else if (!postmanFilterOptions.getFileType().isEmpty()) {
@@ -164,9 +165,9 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
     /**
      *
+     * @param suffixes
      * @param foundFilteredIDs
      * @param outputPath
-     * @throws IOException
      */
     public void downloadFilesFilteredByIDsSuffix(final List<String> suffixes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
         List<String> dataSetCodes = foundFilteredIDs.stream()
@@ -179,6 +180,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
             IDataSetDss dataSetDss = component.getDataSet(dataSetCode);
             FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/", true);
 
+            // for some reason we have to filter this twice, as they still contain files which don't have the suffix
             List<FileInfoDssDTO> filteredFileInfosList = new ArrayList<>();
             suffixes.forEach(suffix -> {
                 for (FileInfoDssDTO fileInfo : fileInfos) {
@@ -186,6 +188,65 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
                         filteredFileInfosList.add(fileInfo);
                     }
                 }
+            });
+
+            for (FileInfoDssDTO fileInfo : filteredFileInfosList) {
+                if (!fileInfo.isDirectory() && fileInfo.getFileSize() > 0) {
+                    try (InputStream is = dataSetDss.getFile(fileInfo.getPathInDataSet())) {
+                        String[] splittedPath = fileInfo.getPathInDataSet().split("/");
+                        String fileName = splittedPath[splittedPath.length - 1];
+                        try (OutputStream os = new FileOutputStream(outputPath + File.separator + fileName)) {
+                            ProgressBar progressBar = new ProgressBar(fileName, fileInfo.getFileSize());
+                            int bufferSize = (fileInfo.getFileSize() < buffersize) ? (int) fileInfo.getFileSize() : buffersize;
+                            byte[] buffer = new byte[buffersize];
+                            int bytesRead;
+
+                            while ((bytesRead = is.read(buffer)) != -1) {
+                                progressBar.updateProgress(bufferSize);
+                                os.write(buffer, 0, bytesRead);
+                                os.flush();
+                            }
+
+                            System.out.print("\n");
+                            is.close();
+
+                            os.flush();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     *
+     * @param foundFilteredIDs
+     * @param outputPath
+     * @throws IOException
+     */
+    public void downloadFilesFilteredByIDsRegex(final List<String> regexes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
+        List<String> dataSetCodes = foundFilteredIDs.stream()
+                .map(dataSetFilePermId -> dataSetFilePermId.getDataSetId().toString())
+                .collect(Collectors.toList());
+
+        final IDssComponent component = DssComponentFactory.tryCreate(sessionToken, asURL);
+
+        dataSetCodes.forEach(dataSetCode -> {
+            IDataSetDss dataSetDss = component.getDataSet(dataSetCode);
+            FileInfoDssDTO[] fileInfos = dataSetDss.listFiles("/", true);
+            List<FileInfoDssDTO> fileInfosList = Arrays.asList(fileInfos);
+
+            // for some reason we have to filter this twice, as they still contain files which don't have the suffix
+            List<FileInfoDssDTO> filteredFileInfosList = new ArrayList<>();
+
+            regexes.forEach(regex -> {
+                fileInfosList.forEach(fileInfoDssDTO -> {
+                    if (fileInfoDssDTO.getPathInDataSet().matches(regex)) {
+                        filteredFileInfosList.add(fileInfoDssDTO);
+                    }
+                });
             });
 
             for (FileInfoDssDTO fileInfo : filteredFileInfosList) {

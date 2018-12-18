@@ -25,9 +25,6 @@ public class PostmanCoreLib {
         List<String> ids = new ArrayList<>();
         ids.add("/CONFERENCE_DEMO/QTGPR014A2");
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
-        List<String> suffixes = new ArrayList<>();
-        suffixes.add(".pdf");
-        postmanFilterOptions.setSuffixes(suffixes);
 
         PostmanConfig postmanConfig = PostmanPropertiesParser.parserProperties("qbicPropertiesFile.conf");
         PostmanSessionManager postmanSessionManager = PostmanSessionManager.getPostmanSessionManager();
