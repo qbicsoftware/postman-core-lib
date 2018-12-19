@@ -43,6 +43,14 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
         this.sessionToken = sessionToken;
     }
 
+    /**
+     *
+     * @param IDs IDs to download
+     * @param postmanFilterOptions postmanFilterOptions containing all regex or suffixes or filetypes to filter for
+     * @param postmanDataFinder postmandatafinder
+     * @param outputPath path to download the files to
+     * @throws IOException
+     */
     @Override
     public void downloadRequestedFilesOfDatasets(List<String> IDs, PostmanFilterOptions postmanFilterOptions,
                                                  PostmanDataFinder postmanDataFinder, String outputPath) throws IOException {
@@ -82,7 +90,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
                 LOG.info(String.format("Number of files found: %s", foundTypeFilteredIDs.size()));
 
-                //downloadDataset(foundTypeFilteredIDs, outputPath);
+                downloadDataset(foundTypeFilteredIDs, outputPath);
             }
         }
         // no suffix or regex was supplied -> download all datasets
@@ -165,9 +173,9 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
     /**
      *
-     * @param suffixes
-     * @param foundFilteredIDs
-     * @param outputPath
+     * @param suffixes suffixes that filter the file names to download
+     * @param foundFilteredIDs filtered IDs after suffix filtering (filtering needs to be applied twice here)
+     * @param outputPath path to download the files to
      */
     public void downloadFilesFilteredByIDsSuffix(final List<String> suffixes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
         List<String> dataSetCodes = foundFilteredIDs.stream()
@@ -221,9 +229,9 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
     }
 
     /**
-     *
-     * @param foundFilteredIDs
-     * @param outputPath
+     * @param regexes regex to filter the file names for
+     * @param foundFilteredIDs filtered IDs after regex filtering (filtering needs to be applied twice here)
+     * @param outputPath path to download the files to
      * @throws IOException
      */
     public void downloadFilesFilteredByIDsRegex(final List<String> regexes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
