@@ -214,7 +214,7 @@ public class PostmanDataDownloaderV3IT extends SuperPostmanSessionSetupManagerFo
 
     @Test
     public void testDownloadFilesByID() {
-        // tested via public interface of downloadFilesFilteredByIDs
+        // tested via public interface of downloadFilesFilteredByIDsSuffix
     }
 
     @Test

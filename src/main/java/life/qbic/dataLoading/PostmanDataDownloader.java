@@ -13,9 +13,9 @@ public interface PostmanDataDownloader {
                                                  final PostmanDataFinder postmanDataFinder,
                                                  final String outputPath) throws IOException;
 
-    void downloadFilesFilteredByIDs(final String ident,
-                                    final List<DataSetFilePermId> foundFilteredIDs,
-                                    final String outputPath) throws IOException;
+//    void downloadFilesFilteredByIDsSuffix(final String ident,
+//                                    final List<DataSetFilePermId> foundFilteredIDs,
+//                                    final String outputPath) throws IOException;
 
 
 }
