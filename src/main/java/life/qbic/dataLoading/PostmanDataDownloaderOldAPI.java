@@ -177,7 +177,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      * @param foundFilteredIDs filtered IDs after suffix filtering (filtering needs to be applied twice here)
      * @param outputPath path to download the files to
      */
-    public void downloadFilesFilteredByIDsSuffix(final List<String> suffixes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
+    private void downloadFilesFilteredByIDsSuffix(final List<String> suffixes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
         List<String> dataSetCodes = foundFilteredIDs.stream()
                 .map(dataSetFilePermId -> dataSetFilePermId.getDataSetId().toString())
                 .collect(Collectors.toList());
@@ -234,7 +234,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      * @param outputPath path to download the files to
      * @throws IOException
      */
-    public void downloadFilesFilteredByIDsRegex(final List<String> regexes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
+    private void downloadFilesFilteredByIDsRegex(final List<String> regexes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
         List<String> dataSetCodes = foundFilteredIDs.stream()
                 .map(dataSetFilePermId -> dataSetFilePermId.getDataSetId().toString())
                 .collect(Collectors.toList());
