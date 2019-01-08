@@ -136,8 +136,8 @@ public class PostmanDataDownloaderOldAPIIT extends SuperPostmanSessionSetupManag
         };
         List<String> regexes = new ArrayList<String>() {
             {
-                add(".jobscript.FastQC.");
-                add(".pdf");
+                add(".*.jobscript.FastQC.*");
+                add(".*.pdf");
             }
         };
         final long expectedNumberOfFiles = 85;
