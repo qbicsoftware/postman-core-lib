@@ -103,32 +103,49 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
         else {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
+                List<DataSet> foundDataSets = postmanDataFinder.findAllDatasetsRecursive(ident);
 
-                LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
+                // datasetcodes were provided -> only download all matching dataset codes
+                if (!postmanFilterOptions.getDatasetCodes().isEmpty()) {
+                    final List<DataSet> foundDataSetsCodeFiltered = new ArrayList<>();
 
-                if (foundDataSets.size() > 0) {
-                    LOG.info("Initialize download ...");
-                    int datasetDownloadReturnCode = -1;
-                    try {
-                        datasetDownloadReturnCode = downloadDataset(foundDataSets, outputPath);
-                    } catch (NullPointerException e) {
-                        LOG.error("Datasets were found by the application server, but could not be found on the datastore server for "
-                                + ident + "." + " Try to supply the correct datastore server using a config file!");
+                    List<DataSet> finalFoundDataSets = foundDataSets;
+                    postmanFilterOptions.getDatasetCodes().forEach(datasetCode -> finalFoundDataSets.stream()
+                        .filter(dataSet -> dataSet.getCode().equals(datasetCode))
+                        .forEachOrdered(foundDataSetsCodeFiltered::add));
+
+                    if (foundDataSetsCodeFiltered.isEmpty()) {
+                        LOG.warn("Found no matching dataset codes for the supplied identifier %s !", ident);
                     }
 
-                    if (datasetDownloadReturnCode != 0) {
-                        LOG.error("Error while downloading dataset: " + ident);
-                    } else {
-                        LOG.info("Download successfully finished.");
-                    }
-
-                } else {
-                    LOG.info("Nothing to download.");
+                    foundDataSets = foundDataSetsCodeFiltered;
                 }
+
+            LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
+
+            if (foundDataSets.size() > 0) {
+                LOG.info("Initialize download ...");
+                int datasetDownloadReturnCode = -1;
+                try {
+                    datasetDownloadReturnCode = downloadDataset(foundDataSets, outputPath);
+                } catch (NullPointerException e) {
+                    LOG.error("Datasets were found by the application server, but could not be found on the datastore server for "
+                            + ident + "." + " Try to supply the correct datastore server using a config file!");
+                }
+
+                if (datasetDownloadReturnCode != 0) {
+                    LOG.error("Error while downloading dataset: " + ident);
+                } else {
+                    LOG.info("Download successfully finished.");
+                }
+
+            } else {
+                LOG.info("Nothing to download.");
             }
         }
     }
+
+}
 
 
     /**

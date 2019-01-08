@@ -235,6 +235,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      * @throws IOException
      */
     private void downloadFilesFilteredByIDsRegex(final List<String> regexes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
+        LOG.warn("Regex filtering via the old API is supported experimentally!");
         List<String> dataSetCodes = foundFilteredIDs.stream()
                 .map(dataSetFilePermId -> dataSetFilePermId.getDataSetId().toString())
                 .collect(Collectors.toList());

@@ -2,13 +2,10 @@ package life.qbic;
 
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownload;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.download.DataSetFileDownloadReader;
-import life.qbic.dataLoading.PostmanDataDownloaderV3;
-import life.qbic.dataLoading.PostmanDataFilterer;
-import life.qbic.dataLoading.PostmanDataStreamProvider;
+import life.qbic.dataLoading.*;
 import life.qbic.exceptions.PostmanOpenBISLoginFailedException;
 import life.qbic.core.authentication.PostmanConfig;
 import life.qbic.core.authentication.PostmanSessionManager;
-import life.qbic.dataLoading.PostmanDataFinder;
 import life.qbic.io.parser.PostmanPropertiesParser;
 import life.qbic.util.ProgressBar;
 import org.apache.commons.io.FileUtils;
@@ -34,6 +31,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
     private static PostmanSessionManager postmanSessionManager;
     private static PostmanDataFinder postmanDataFinder;
     private static PostmanDataDownloaderV3 postmanDataDownloaderV3;
+    private static PostmanDataDownloaderOldAPI postmanDataDownloaderOldAPI;
     private static PostmanDataStreamProvider postmanDataStreamProvider;
     private static PostmanDataFilterer postmanDataFilterer;
 
@@ -60,6 +58,11 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
         );
+        postmanDataDownloaderOldAPI = new PostmanDataDownloaderOldAPI(
+                "https://qbis.qbic.uni-tuebingen.de/openbis/openbis",
+                postmanSessionManager.getSessionToken()
+        );
+
         postmanDataStreamProvider = new PostmanDataStreamProvider(
                 postmanSessionManager.getDataStoreServer(),
                 postmanSessionManager.getSessionToken()
@@ -188,6 +191,8 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
     protected static PostmanDataDownloaderV3 getPostmanDataDownloaderV3() {
         return postmanDataDownloaderV3;
     }
+
+    protected static PostmanDataDownloaderOldAPI getPostmanDataDownloaderOldAPI() { return postmanDataDownloaderOldAPI; }
 
     protected static PostmanDataStreamProvider getPostmanDataStreamProvider() {
         return postmanDataStreamProvider;
