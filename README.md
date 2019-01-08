@@ -13,9 +13,9 @@ PostmanDataFinder for dataset finding
 PostmanDataStreamProvider for dataset stream providing    
 
 ## How to Install
-`git clone https://github.com/qbicsoftware/postman-core-lib`
+`git clone https://github.com/qbicsoftware/postman-core-lib`    
 `mvn clean install`    
-to create a jar with dependencies included:
+to create a jar with dependencies included:    
 `mvn clean package`
 
 ## Development
