@@ -206,4 +206,5 @@ public class PostmanDataFinder {
     public void setFilterType(String filterType) {
         this.filterType = filterType;
     }
+
 }
