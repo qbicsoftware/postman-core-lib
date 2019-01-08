@@ -61,7 +61,8 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident,
+                                                                                                                      postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -71,7 +72,8 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident,
+                                                                                                                    postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -178,6 +180,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      * @param outputPath path to download the files to
      */
     private void downloadFilesFilteredByIDsSuffix(final List<String> suffixes, final List<DataSetFilePermId> foundFilteredIDs, final String outputPath) {
+        LOG.warn("Suffix filtering via the old API is supported experimentally!");
         List<String> dataSetCodes = foundFilteredIDs.stream()
                 .map(dataSetFilePermId -> dataSetFilePermId.getDataSetId().toString())
                 .collect(Collectors.toList());
@@ -198,6 +201,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
                 }
             });
 
+            int count = 0;
             for (FileInfoDssDTO fileInfo : filteredFileInfosList) {
                 if (!fileInfo.isDirectory() && fileInfo.getFileSize() > 0) {
                     try (InputStream is = dataSetDss.getFile(fileInfo.getPathInDataSet())) {
@@ -219,6 +223,10 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
                             is.close();
 
                             os.flush();
+                            count++;
+                            if (count == filteredFileInfosList.size()) { // this is to prevent the downloading from happening multiple times
+                                System.exit(0);
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -258,6 +266,7 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
                 });
             });
 
+            int count = 0;
             for (FileInfoDssDTO fileInfo : filteredFileInfosList) {
                 if (!fileInfo.isDirectory() && fileInfo.getFileSize() > 0) {
                     try (InputStream is = dataSetDss.getFile(fileInfo.getPathInDataSet())) {
@@ -279,6 +288,10 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
                             is.close();
 
                             os.flush();
+                            count++;
+                            if (count == filteredFileInfosList.size()) { // this is to prevent the downloading from happening multiple times
+                                System.exit(0);
+                            }
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
