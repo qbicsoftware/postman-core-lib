@@ -3,8 +3,8 @@ package life.qbic.dataLoading;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
-import life.qbic.SuperPostmanSessionSetupManagerForIntegrationTests;
 import life.qbic.core.PostmanFilterOptions;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -13,7 +13,14 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForIntegrationTests {
+public class PostmanDataFiltererTest {
+
+    private PostmanDataFilterer postmanDataFilterer;
+
+    @Before
+    public void setup() {
+        postmanDataFilterer = new PostmanDataFilterer();
+    }
 
     /**
      * tests both: suffix and regex filtering
@@ -58,8 +65,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
             }
         };
         postmanFilterOptionsSuffix.setSuffixes(suffixes);
-
-        List<DataSetFilePermId> suffixFilteredIDs = getPostmanDataFilterer().filterPermIDs(allIDs, postmanFilterOptionsSuffix);
+        List<DataSetFilePermId> suffixFilteredIDs = postmanDataFilterer.filterPermIDs(allIDs, postmanFilterOptionsSuffix);
 
         assertEquals(expectedIDsSuffix, suffixFilteredIDs);
 
@@ -81,7 +87,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsRegex.setRegexPatterns(regexes);
 
-        List<DataSetFilePermId> regexFilteredIDs = getPostmanDataFilterer().filterPermIDs(allIDs, postmanFilterOptionsRegex);
+        List<DataSetFilePermId> regexFilteredIDs = postmanDataFilterer.filterPermIDs(allIDs, postmanFilterOptionsRegex);
 
         assertEquals(expectedIDsRegex, regexFilteredIDs);
     }
@@ -130,7 +136,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsSuffix.setSuffixes(suffixes);
 
-        List<DataSetFilePermId> suffixFilteredIDs = getPostmanDataFilterer().filterPermIDsBySuffix(allIDs, postmanFilterOptionsSuffix.getSuffixes());
+        List<DataSetFilePermId> suffixFilteredIDs = postmanDataFilterer.filterPermIDsBySuffix(allIDs, postmanFilterOptionsSuffix.getSuffixes());
 
         assertEquals(expectedIDsSuffix, suffixFilteredIDs);
     }
@@ -175,7 +181,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsRegex.setRegexPatterns(regexes);
 
-        List<DataSetFilePermId> regexFilteredIDs = getPostmanDataFilterer().filterPermIDsByRegex(allIDs, postmanFilterOptionsRegex.getRegexPatterns());
+        List<DataSetFilePermId> regexFilteredIDs = postmanDataFilterer.filterPermIDsByRegex(allIDs, postmanFilterOptionsRegex.getRegexPatterns());
 
         assertEquals(expectedIDsRegex, regexFilteredIDs);
     }
@@ -217,7 +223,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsSuffix.setSuffixes(suffixes);
 
-        List<DataSetFile> suffixFilteredDataSetFiles = getPostmanDataFilterer().filterDataSetFiles(allDataSetFiles, postmanFilterOptionsSuffix);
+        List<DataSetFile> suffixFilteredDataSetFiles = postmanDataFilterer.filterDataSetFiles(allDataSetFiles, postmanFilterOptionsSuffix);
 
         assertEquals(expectedDataSetFilesSuffix, suffixFilteredDataSetFiles);
 
@@ -234,7 +240,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsRegex.setRegexPatterns(regexes);
 
-        List<DataSetFile> regexFilteredDataSetFiles = getPostmanDataFilterer().filterDataSetFiles(allDataSetFiles, postmanFilterOptionsRegex);
+        List<DataSetFile> regexFilteredDataSetFiles = postmanDataFilterer.filterDataSetFiles(allDataSetFiles, postmanFilterOptionsRegex);
 
         assertEquals(expectedDataSetFilesRegex, regexFilteredDataSetFiles);
     }
@@ -276,7 +282,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsSuffix.setSuffixes(suffixes);
 
-        List<DataSetFile> suffixFilteredDataSetFiles = getPostmanDataFilterer().filterDataSetFiles(allDataSetFiles, postmanFilterOptionsSuffix);
+        List<DataSetFile> suffixFilteredDataSetFiles = postmanDataFilterer.filterDataSetFiles(allDataSetFiles, postmanFilterOptionsSuffix);
 
         assertEquals(expectedDataSetFilesSuffix, suffixFilteredDataSetFiles);
     }
@@ -318,7 +324,7 @@ public class PostmanDataFiltererIT extends SuperPostmanSessionSetupManagerForInt
         };
         postmanFilterOptionsRegex.setRegexPatterns(regexes);
 
-        List<DataSetFile> regexFilteredDataSetFiles = getPostmanDataFilterer().filterDataSetFiles(allDataSetFiles, postmanFilterOptionsRegex);
+        List<DataSetFile> regexFilteredDataSetFiles = postmanDataFilterer.filterDataSetFiles(allDataSetFiles, postmanFilterOptionsRegex);
 
         assertEquals(expectedDataSetFilesRegex, regexFilteredDataSetFiles);
     }

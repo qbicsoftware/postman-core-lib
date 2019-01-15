@@ -59,7 +59,11 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
     public void downloadRequestedFilesOfDatasets(final List<String> IDs,
                                                  final PostmanFilterOptions postmanFilterOptions,
                                                  final PostmanDataFinder postmanDataFinder,
-                                                 final String outputPath) throws IOException {
+                                                 final String outputPath) throws IOException, IllegalArgumentException {
+        if (IDs.isEmpty()) {
+            throw new IllegalArgumentException("List of IDs to download cannot be empty!");
+        }
+
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
@@ -67,7 +71,8 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
         if (!postmanFilterOptions.getSuffixes().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident, postmanFilterOptions.getSuffixes());
+                final List<DataSetFilePermId> foundSuffixFilteredIDs = postmanDataFinder.findAllSuffixFilteredPermIDs(ident,
+                                                                                                                      postmanFilterOptions.getSuffixes());
 
                 LOG.info(String.format("Number of files found: %s", foundSuffixFilteredIDs.size()));
 
@@ -77,7 +82,8 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
         } else if (!postmanFilterOptions.getRegexPatterns().isEmpty()) {
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident, postmanFilterOptions.getRegexPatterns());
+                final List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs(ident,
+                                                                                                                    postmanFilterOptions.getRegexPatterns());
 
                 LOG.info(String.format("Number of files found: %s", foundRegexFilteredIDs.size()));
 
@@ -92,7 +98,8 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
 
             for (String ident : IDs) {
                 LOG.info(String.format("Downloading files for provided identifier %s", ident));
-                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredDataSets(ident, postmanFilterOptions.getFileType());
+                final List<DataSet> foundTypeFilteredIDs = postmanDataFinder.findAllTypeFilteredDataSets(ident,
+                                                                                                         postmanFilterOptions.getFileType());
 
                 LOG.info(String.format("Number of files found: %s", foundTypeFilteredIDs.size()));
 
@@ -158,7 +165,7 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
      */
     public void downloadFilesFilteredByIDs(final String ident,
                                            final List<DataSetFilePermId> foundFilteredIDs,
-                                           final String outputPath) throws IOException {
+                                           final String outputPath) {
         if (foundFilteredIDs.size() > 0) {
             LOG.info("Initialize download ...");
             int filesDownloadReturnCode = -1;

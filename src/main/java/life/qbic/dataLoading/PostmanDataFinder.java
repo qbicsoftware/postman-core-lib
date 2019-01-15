@@ -207,4 +207,31 @@ public class PostmanDataFinder {
         this.filterType = filterType;
     }
 
+    public IApplicationServerApi getApplicationServer() {
+        return applicationServer;
+    }
+
+    public void setApplicationServer(IApplicationServerApi applicationServer) {
+        this.applicationServer = applicationServer;
+    }
+
+    public IDataStoreServerApi getDataStoreServer() {
+        return dataStoreServer;
+    }
+
+    public void setDataStoreServer(IDataStoreServerApi dataStoreServer) {
+        this.dataStoreServer = dataStoreServer;
+    }
+
+    public String getSessionToken() {
+        return sessionToken;
+    }
+
+    public void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
+    }
+
+    public String getFilterType() {
+        return filterType;
+    }
 }
