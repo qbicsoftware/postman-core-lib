@@ -74,7 +74,8 @@ public class PostmanDataFinderIT extends SuperPostmanSessionSetupManagerForInteg
                 .map(DataSetFilePermId::getFilePath)
                 .collect(Collectors.toList());
 
-        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs("/CONFERENCE_DEMO/QTGPR014A2", new ArrayList<>(Collections.singleton(".pdf")));
+        List<DataSetFilePermId> foundRegexFilteredIDs = postmanDataFinder.findAllRegexFilteredPermIDs("/CONFERENCE_DEMO/QTGPR014A2",
+                                                                                                       new ArrayList<>(Collections.singleton(".pdf")));
 
         List<String> foundPermIDs = foundRegexFilteredIDs.stream()
                 .map(DataSetFilePermId::toString)

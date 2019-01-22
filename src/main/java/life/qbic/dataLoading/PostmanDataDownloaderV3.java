@@ -22,8 +22,9 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloaderV3.class);
 
-    private IDataStoreServerApi dataStoreServer;
-    private String sessionToken;
+    private final IDataStoreServerApi dataStoreServer;
+    private final PostmanDataFinder postmanDataFinder;
+    private final String sessionToken;
 
     private final int DEFAULTBUFFERSIZE = 8192;
     private int buffersize = DEFAULTBUFFERSIZE;
@@ -34,15 +35,19 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
      * @param bufferSize
      */
     public PostmanDataDownloaderV3(IDataStoreServerApi dataStoreServer,
+                                   PostmanDataFinder postmanDataFinder,
                                    String sessionToken, int bufferSize) {
+        this.postmanDataFinder = postmanDataFinder;
         this.dataStoreServer = dataStoreServer;
         this.sessionToken = sessionToken;
         this.buffersize = bufferSize;
     }
 
     public PostmanDataDownloaderV3(IDataStoreServerApi dataStoreServer,
+                                   PostmanDataFinder postmanDataFinder,
                                    String sessionToken) {
         this.dataStoreServer = dataStoreServer;
+        this.postmanDataFinder = postmanDataFinder;
         this.sessionToken = sessionToken;
     }
 
@@ -52,13 +57,11 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
      *
      * @param IDs                  specifies the IDs which are subsequently downloaded
      * @param postmanFilterOptions required to filter any data - pass it with empty lists of different filter options to download files without any filtering
-     * @param postmanDataFinder    required to find the data before downloading
      * @param outputPath           where the files are downloaded to
      * @throws IOException
      */
     public void downloadRequestedFilesOfDatasets(final List<String> IDs,
                                                  final PostmanFilterOptions postmanFilterOptions,
-                                                 final PostmanDataFinder postmanDataFinder,
                                                  final String outputPath) throws IOException, IllegalArgumentException {
         if (IDs.isEmpty()) {
             throw new IllegalArgumentException("List of IDs to download cannot be empty!");
@@ -114,18 +117,8 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
 
                 // datasetcodes were provided -> only download all matching dataset codes
                 if (!postmanFilterOptions.getDatasetCodes().isEmpty()) {
-                    final List<DataSet> foundDataSetsCodeFiltered = new ArrayList<>();
-
-                    List<DataSet> finalFoundDataSets = foundDataSets;
-                    postmanFilterOptions.getDatasetCodes().forEach(datasetCode -> finalFoundDataSets.stream()
-                        .filter(dataSet -> dataSet.getCode().equals(datasetCode))
-                        .forEachOrdered(foundDataSetsCodeFiltered::add));
-
-                    if (foundDataSetsCodeFiltered.isEmpty()) {
-                        LOG.warn("Found no matching dataset codes for the supplied identifier %s !", ident);
-                    }
-
-                    foundDataSets = foundDataSetsCodeFiltered;
+                    final List<String> datasetCodesToFilterFor = postmanFilterOptions.getDatasetCodes();
+                    foundDataSets = filterDatasetCodes(datasetCodesToFilterFor, ident, foundDataSets);
                 }
 
             LOG.info(String.format("Number of datasets found: %s", foundDataSets.size()));
@@ -153,6 +146,28 @@ public class PostmanDataDownloaderV3 implements PostmanDataDownloader {
     }
 
 }
+
+    /**
+     * filters datasets for datasetcodes
+     *
+     * @param datasetCodesToFilterFor
+     * @param ident
+     * @param foundDataSets
+     * @return
+     */
+    private List<DataSet> filterDatasetCodes(final List<String> datasetCodesToFilterFor, final String ident, final List<DataSet> foundDataSets) {
+        final List<DataSet> foundDataSetsCodeFiltered = new ArrayList<>();
+
+        datasetCodesToFilterFor.forEach(datasetCode -> foundDataSets.stream()
+            .filter(dataSet -> dataSet.getCode().equals(datasetCode))
+            .forEachOrdered(foundDataSetsCodeFiltered::add));
+
+        if (foundDataSetsCodeFiltered.isEmpty()) {
+            LOG.warn("Found no matching dataset codes for the supplied identifier %s !", ident);
+        }
+
+        return foundDataSetsCodeFiltered;
+    }
 
 
     /**

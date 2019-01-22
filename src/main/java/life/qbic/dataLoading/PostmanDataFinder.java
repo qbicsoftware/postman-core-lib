@@ -103,7 +103,7 @@ public class PostmanDataFinder {
      * @param regexPatterns regex patterns which are applied as filters
      * @return
      */
-    List<DataSetFilePermId> findAllRegexFilteredPermIDs(final String ident, final List<String> regexPatterns) {
+    public List<DataSetFilePermId> findAllRegexFilteredPermIDs(final String ident, final List<String> regexPatterns) {
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
 
         return RegexFilterUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
