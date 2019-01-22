@@ -35,13 +35,13 @@ public class PostmanDataDownloaderV3Test {
     private PostmanDataDownloaderV3 postmanDataDownloaderV3;
 
     @Mock
-    PostmanSessionManager postmanSessionManager;
+    private PostmanSessionManager postmanSessionManager;
     @Mock
-    PostmanDataFinder postmanDataFinder;
+    private PostmanDataFinder postmanDataFinder;
     @Mock
-    List<DataSet> datasets;
+    private List<DataSet> datasets;
     @Mock
-    List<DataSetFilePermId> filePermIds;
+    private List<DataSetFilePermId> filePermIds;
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();

@@ -34,7 +34,7 @@ public class PostmanDataStreamProvider {
         DataSetFileDownloadOptions options = new DataSetFileDownloadOptions();
         options.setRecursive(true);
 
-        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(permID), options);
+        return dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(permID), options);
     }
 
     /**
@@ -50,7 +50,7 @@ public class PostmanDataStreamProvider {
         IDataSetFileId fileId = new DataSetFilePermId(new DataSetPermId(permID.toString()));
         options.setRecursive(true);
 
-        return this.dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(fileId), options);
+        return dataStoreServer.downloadFiles(sessionToken, Collections.singletonList(fileId), options);
     }
 
 

@@ -48,10 +48,10 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         });
     }
 
-    @Test
     /**
      * verifies that the streams are not empty!
      */
+    @Test
     public void testGetDatasetStreamFromDatasetList() {
         List<String> IDsToDownload = new ArrayList<String>() {
             {
