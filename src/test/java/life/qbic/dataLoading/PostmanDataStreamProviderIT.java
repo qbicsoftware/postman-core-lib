@@ -48,11 +48,11 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
         });
     }
 
-    @Test
     /**
      * verifies that the streams are not empty!
      */
-    public void testGetDatasetStreamFromDatasetList() throws Exception {
+    @Test
+    public void testGetDatasetStreamFromDatasetList() {
         List<String> IDsToDownload = new ArrayList<String>() {
             {
                 add("/CONFERENCE_DEMO/QTGPR014A2");
@@ -68,7 +68,6 @@ public class PostmanDataStreamProviderIT extends SuperPostmanSessionSetupManager
                 e.printStackTrace();
             }
         });
-
     }
 
 

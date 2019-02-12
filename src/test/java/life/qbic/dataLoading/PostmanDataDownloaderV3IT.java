@@ -38,7 +38,6 @@ public class PostmanDataDownloaderV3IT extends SuperPostmanSessionSetupManagerFo
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(IDsToDownload,
                                                                postmanFilterOptions,
-                                                               getPostmanDataFinder(),
                                                                OUTPUTPATH);
 
         final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
@@ -97,7 +96,6 @@ public class PostmanDataDownloaderV3IT extends SuperPostmanSessionSetupManagerFo
 
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
-                getPostmanDataFinder(),
                 OUTPUTPATH);
 
         final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
@@ -149,7 +147,6 @@ public class PostmanDataDownloaderV3IT extends SuperPostmanSessionSetupManagerFo
 
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
-                getPostmanDataFinder(),
                 OUTPUTPATH);
 
         final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);

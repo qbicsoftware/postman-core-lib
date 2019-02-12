@@ -26,19 +26,22 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
 
     private final static Logger LOG = LogManager.getLogger(PostmanDataDownloaderOldAPI.class);
 
+    private PostmanDataFinder postmanDataFinder;
     private String asURL;
     private String sessionToken;
 
     private final int DEFAULTBUFFERSIZE = 8192;
     private int buffersize = DEFAULTBUFFERSIZE;
 
-    public PostmanDataDownloaderOldAPI(String asURL, String sessionToken, int buffersize) {
+    public PostmanDataDownloaderOldAPI(PostmanDataFinder postmanDataFinder, String asURL, String sessionToken, int buffersize) {
+        this.postmanDataFinder = postmanDataFinder;
         this.asURL = asURL;
         this.sessionToken = sessionToken;
         this.buffersize = buffersize;
     }
 
-    public PostmanDataDownloaderOldAPI(String asURL, String sessionToken) {
+    public PostmanDataDownloaderOldAPI(PostmanDataFinder postmanDataFinder, String asURL, String sessionToken) {
+        this.postmanDataFinder = postmanDataFinder;
         this.asURL = asURL;
         this.sessionToken = sessionToken;
     }
@@ -47,13 +50,11 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      *
      * @param IDs IDs to download
      * @param postmanFilterOptions postmanFilterOptions containing all regex or suffixes or filetypes to filter for
-     * @param postmanDataFinder postmandatafinder
      * @param outputPath path to download the files to
-     * @throws IOException
      */
     @Override
     public void downloadRequestedFilesOfDatasets(List<String> IDs, PostmanFilterOptions postmanFilterOptions,
-                                                 PostmanDataFinder postmanDataFinder, String outputPath) throws IOException {
+                                                 String outputPath) {
         LOG.info(String.format("%s provided openBIS identifiers have been found: %s",
                 IDs.size(), IDs.toString()));
 
@@ -131,7 +132,6 @@ public class PostmanDataDownloaderOldAPI implements PostmanDataDownloader {
      * @param dataSets   datasets to download
      * @param outputPath path to save the downloaded files to
      * @return
-     * @throws IOException thrown if an error occurs while downloading
      */
     private int downloadDataset(final List<DataSet> dataSets, final String outputPath) {
         final IDssComponent component = DssComponentFactory.tryCreate(sessionToken, asURL);

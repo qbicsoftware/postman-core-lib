@@ -36,7 +36,6 @@ public class PostmanDataDownloaderOldAPIIT extends SuperPostmanSessionSetupManag
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanDataDownloaderOldAPI.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
-                getPostmanDataFinder(),
                 OUTPUTPATH);
 
         final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
@@ -95,7 +94,6 @@ public class PostmanDataDownloaderOldAPIIT extends SuperPostmanSessionSetupManag
 
         postmanDataDownloaderOldAPI.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
-                getPostmanDataFinder(),
                 OUTPUTPATH);
 
         final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);
@@ -147,7 +145,6 @@ public class PostmanDataDownloaderOldAPIIT extends SuperPostmanSessionSetupManag
 
         postmanDataDownloaderOldAPI.downloadRequestedFilesOfDatasets(IDsToDownload,
                 postmanFilterOptions,
-                getPostmanDataFinder(),
                 OUTPUTPATH);
 
         final long foundNumberOfFiles = countFilesInDirectory(OUTPUTPATH);

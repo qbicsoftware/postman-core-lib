@@ -52,13 +52,16 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
         postmanDataFinder = new PostmanDataFinder(
                 postmanSessionManager.getApplicationServer(),
                 postmanSessionManager.getDataStoreServer(),
+                new PostmanDataFilterer(),
                 postmanSessionManager.getSessionToken()
         );
         postmanDataDownloaderV3 = new PostmanDataDownloaderV3(
                 postmanSessionManager.getDataStoreServer(),
+                postmanDataFinder,
                 postmanSessionManager.getSessionToken()
         );
         postmanDataDownloaderOldAPI = new PostmanDataDownloaderOldAPI(
+                postmanDataFinder,
                 "https://qbis.qbic.uni-tuebingen.de/openbis/openbis",
                 postmanSessionManager.getSessionToken()
         );

@@ -10,7 +10,6 @@ public interface PostmanDataDownloader {
 
     void downloadRequestedFilesOfDatasets(final List<String> IDs,
                                                  final PostmanFilterOptions postmanFilterOptions,
-                                                 final PostmanDataFinder postmanDataFinder,
                                                  final String outputPath) throws IOException;
 
 //    void downloadFilesFilteredByIDsSuffix(final String ident,
