@@ -104,6 +104,10 @@ public class PostmanDataFinder {
      * @return
      */
     public List<DataSetFilePermId> findAllRegexFilteredPermIDs(final String ident, final List<String> regexPatterns) {
+        if (ident.isEmpty()) {
+            throw new IllegalArgumentException("Attempted to find empty IDs. IDs cannot be empty!");
+        }
+
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
 
         return RegexFilterUtil.findAllRegexFilteredIDsGroovy(regexPatterns, allDatasets, dataStoreServer, sessionToken);
