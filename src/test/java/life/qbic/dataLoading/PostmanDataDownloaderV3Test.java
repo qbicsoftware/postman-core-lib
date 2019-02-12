@@ -90,9 +90,6 @@ public class PostmanDataDownloaderV3Test {
 
     @Test
     public void testDownloadRequestedFilesOfDatasetsRegexFiltering() throws Exception {
-        when(postmanDataFinder.findAllSuffixFilteredPermIDs(Mockito.anyString(), anyList()))
-                .thenReturn(filePermIds);
-        when(filePermIds.size()).thenReturn(1);
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setRegexPatterns(Collections.singletonList("regex"));
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(Collections.singletonList("randomSampleID"),
@@ -110,7 +107,6 @@ public class PostmanDataDownloaderV3Test {
     public void testDownloadRequestedFilesOfDatasetCodeFiltering() throws Exception {
         when(postmanDataFinder.findAllDatasetsRecursive(Mockito.anyString()))
                 .thenReturn(datasets);
-        when(datasets.size()).thenReturn(1);
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setDatasetCodes(Collections.singletonList("someCode"));
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(Collections.singletonList("randomSampleID"),
@@ -126,9 +122,6 @@ public class PostmanDataDownloaderV3Test {
 
     @Test
     public void downloadFilesFilteredAfterFileTypeFiltering() throws Exception {
-        when(postmanDataFinder.findAllSuffixFilteredPermIDs(Mockito.anyString(), anyList()))
-                .thenReturn(filePermIds);
-        when(filePermIds.size()).thenReturn(1);
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setFileType("filetype");
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(Collections.singletonList("randomSampleID"),
