@@ -25,23 +25,15 @@ public class PostmanDataFinder {
     private final static Logger LOG = LogManager.getLogger(PostmanDataFinder.class);
 
     private IApplicationServerApi applicationServer;
-
     private IDataStoreServerApi dataStoreServer;
-
+    private PostmanDataFilterer postmanDataFilterer;
     private String sessionToken;
 
-    private String filterType = "";
-
-    PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken, String filterType) {
+    public PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer,
+                             PostmanDataFilterer postmanDataFilterer, String sessionToken) {
         this.applicationServer = applicationServer;
         this.dataStoreServer = dataStoreServer;
-        this.sessionToken = sessionToken;
-        this.filterType = filterType;
-    }
-
-    public PostmanDataFinder(IApplicationServerApi applicationServer, IDataStoreServerApi dataStoreServer, String sessionToken) {
-        this.applicationServer = applicationServer;
-        this.dataStoreServer = dataStoreServer;
+        this.postmanDataFilterer = postmanDataFilterer;
         this.sessionToken = sessionToken;
     }
 
@@ -121,6 +113,10 @@ public class PostmanDataFinder {
      * @return
      */
     public List<DataSetFilePermId> findAllSuffixFilteredPermIDs(final String ident, final List<String> suffixes) {
+        if (ident.isEmpty()) {
+            throw new IllegalArgumentException("Attempted to find empty IDs. IDs cannot be empty!");
+        }
+
         final List<DataSet> allDatasets = findAllDatasetsRecursive(ident);
         List<DataSetFilePermId> allFileIDs = new ArrayList<>();
 
@@ -130,8 +126,6 @@ public class PostmanDataFinder {
             criteria.withDataSet().withCode().thatEquals(ds.getCode());
             SearchResult<DataSetFile> result = dataStoreServer.searchFiles(sessionToken, criteria, new DataSetFileFetchOptions());
             final List<DataSetFile> files = result.getObjects();
-
-            PostmanDataFilterer postmanDataFilterer = new PostmanDataFilterer();
 
             List<DataSetFile> suffixFilteredDataSetFiles = postmanDataFilterer.filterDataSetFilesBySuffix(files, suffixes);
 
@@ -207,16 +201,20 @@ public class PostmanDataFinder {
         return allFileIDs;
     }
 
-    public void setFilterType(String filterType) {
-        this.filterType = filterType;
-    }
-
     public IApplicationServerApi getApplicationServer() {
         return applicationServer;
     }
 
     public void setApplicationServer(IApplicationServerApi applicationServer) {
         this.applicationServer = applicationServer;
+    }
+
+    public PostmanDataFilterer getPostmanDataFilterer() {
+        return postmanDataFilterer;
+    }
+
+    public void setPostmanDataFilterer(PostmanDataFilterer postmanDataFilterer) {
+        this.postmanDataFilterer = postmanDataFilterer;
     }
 
     public IDataStoreServerApi getDataStoreServer() {
@@ -233,9 +231,5 @@ public class PostmanDataFinder {
 
     public void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
-    }
-
-    public String getFilterType() {
-        return filterType;
     }
 }

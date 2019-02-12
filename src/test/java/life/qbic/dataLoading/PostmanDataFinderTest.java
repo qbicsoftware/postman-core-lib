@@ -7,6 +7,7 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
+import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.util.RegexFilterUtil;
 import org.junit.Before;
@@ -18,7 +19,6 @@ import org.mockito.Mockito;
 import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
-import org.mockito.verification.VerificationMode;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -39,23 +39,20 @@ public class PostmanDataFinderTest {
     private PostmanDataFinder postmanDataFinderSpy;
 
     @Mock
-    IApplicationServerApi iApplicationServerApi;
-
+    private IApplicationServerApi iApplicationServerApi;
     @Mock
-    IDataStoreServerApi iDataStoreServerApi;
-
+    private IDataStoreServerApi iDataStoreServerApi;
     @Mock
-    SearchResult<Sample> searchResult;
-
+    private PostmanDataFilterer postmanDataFilterer;
     @Mock
-    PostmanDataFinder postmanDataFinderMock;
+    private SearchResult<Sample> searchResultSample;
 
     @Rule
     public MockitoRule mockitoRule = MockitoJUnit.rule();
 
     @Before
     public void setup() {
-        postmanDataFinder = new PostmanDataFinder(iApplicationServerApi, iDataStoreServerApi, "");
+        postmanDataFinder = new PostmanDataFinder(iApplicationServerApi, iDataStoreServerApi, postmanDataFilterer, "");
         postmanDataFinderSpy = Mockito.spy(postmanDataFinder);
 
         PowerMockito.mockStatic(RegexFilterUtil.class);
@@ -64,10 +61,10 @@ public class PostmanDataFinderTest {
     @Test
     public void testFindAllDatasetsRecursive() {
         when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
-                .thenReturn(searchResult);
-        when(searchResult.getObjects())
+                .thenReturn(searchResultSample);
+        when(searchResultSample.getObjects())
                 .thenReturn(Collections.emptyList());
-        List<DataSet> foundDatasets = postmanDataFinder.findAllDatasetsRecursive("");
+        List<DataSet> foundDatasets = postmanDataFinder.findAllDatasetsRecursive("someID");
 
         verify(iApplicationServerApi, times(1))
                 .searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class));
@@ -76,8 +73,8 @@ public class PostmanDataFinderTest {
     @Test
     public void testFindAllRegexFilteredIDs() {
         when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
-                .thenReturn(searchResult);
-        when(searchResult.getObjects())
+                .thenReturn(searchResultSample);
+        when(searchResultSample.getObjects())
                 .thenReturn(Collections.emptyList());
 
         List<DataSetFilePermId> result = postmanDataFinderSpy.findAllRegexFilteredPermIDs("test", Collections.singletonList("regex"));
@@ -88,21 +85,45 @@ public class PostmanDataFinderTest {
                 .findAllDatasetsRecursive(Mockito.anyString());
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void testFindAllRegexFilteredIDsNoID() {
-//        when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
-//                .thenReturn(searchResult);
-//        when(searchResult.getObjects())
-//                .thenReturn(Collections.emptyList());
-//        when(postmanDataFinderMock.findAllDatasetsRecursive(Mockito.anyString()))
-//                .thenReturn(Collections.emptyList());
-//
-//        List<DataSetFilePermId> result = postmanDataFinderMock.findAllRegexFilteredPermIDs("", Collections.singletonList("regex"));
+        when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
+                .thenReturn(searchResultSample);
+        when(searchResultSample.getObjects())
+                .thenReturn(Collections.emptyList());
+
+        List<DataSetFilePermId> result = postmanDataFinderSpy.findAllRegexFilteredPermIDs("", Collections.singletonList("regex"));
+        PowerMockito.verifyStatic(RegexFilterUtil.class, VerificationModeFactory.times(1));
+        RegexFilterUtil.findAllRegexFilteredIDsGroovy(Mockito.anyList(), Mockito.anyList(), Mockito.any(), Mockito.any());
+
+        verify(postmanDataFinderSpy, Mockito.atLeastOnce())
+                .findAllDatasetsRecursive(Mockito.anyString());
     }
 
     @Test
     public void testFindAllSuffixFilteredIDs() {
+        when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
+                .thenReturn(searchResultSample);
+        when(searchResultSample.getObjects())
+                .thenReturn(Collections.emptyList());
 
+        List<DataSetFilePermId> result = postmanDataFinderSpy.findAllSuffixFilteredPermIDs("test", Collections.singletonList("suffix"));
+
+        verify(postmanDataFinderSpy, Mockito.atLeastOnce())
+                .findAllDatasetsRecursive(Mockito.anyString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testFindAllSuffixFilteredIDsNoID() {
+        when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
+                .thenReturn(searchResultSample);
+        when(searchResultSample.getObjects())
+                .thenReturn(Collections.emptyList());
+
+        List<DataSetFilePermId> result = postmanDataFinderSpy.findAllSuffixFilteredPermIDs("", Collections.singletonList("suffix"));
+
+        verify(postmanDataFinderSpy, Mockito.atLeastOnce())
+                .findAllDatasetsRecursive(Mockito.anyString());
     }
 
 }

@@ -52,6 +52,7 @@ public class SuperPostmanSessionSetupManagerForIntegrationTests {
         postmanDataFinder = new PostmanDataFinder(
                 postmanSessionManager.getApplicationServer(),
                 postmanSessionManager.getDataStoreServer(),
+                new PostmanDataFilterer(),
                 postmanSessionManager.getSessionToken()
         );
         postmanDataDownloaderV3 = new PostmanDataDownloaderV3(
