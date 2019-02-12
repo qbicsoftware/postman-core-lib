@@ -126,4 +126,17 @@ public class PostmanDataFinderTest {
                 .findAllDatasetsRecursive(Mockito.anyString());
     }
 
+    @Test
+    public void testFindAllPermIDs() {
+        when(iApplicationServerApi.searchSamples(Mockito.anyString(), any(SampleSearchCriteria.class), any(SampleFetchOptions.class)))
+                .thenReturn(searchResultSample);
+        when(searchResultSample.getObjects())
+                .thenReturn(Collections.emptyList());
+
+        List<DataSetFilePermId> result = postmanDataFinderSpy.findAllPermIDs("test");
+
+        verify(postmanDataFinderSpy, Mockito.atLeastOnce())
+                .findAllDatasetsRecursive(Mockito.anyString());
+    }
+
 }
