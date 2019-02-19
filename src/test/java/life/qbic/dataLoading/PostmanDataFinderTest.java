@@ -8,10 +8,12 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchO
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
+import life.qbic.testConfigurations.Fast;
 import life.qbic.util.RegexFilterUtil;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -32,6 +34,7 @@ import static org.mockito.Mockito.*;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(RegexFilterUtil.class)
 @PowerMockIgnore({"javax.management.*", "javax.script*"})
+@Category({Test.class, Fast.class})
 public class PostmanDataFinderTest {
 
     private PostmanDataFinder postmanDataFinder;

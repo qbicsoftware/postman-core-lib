@@ -4,9 +4,11 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.DataSet;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.core.PostmanFilterOptions;
 import life.qbic.core.authentication.PostmanSessionManager;
+import life.qbic.testConfigurations.Fast;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -30,6 +32,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(PostmanDataDownloaderV3.class)
 @PowerMockIgnore({"javax.management.*", "javax.script*"})
+@Category({Test.class, Fast.class})
 public class PostmanDataDownloaderV3Test {
 
     private PostmanDataDownloaderV3 postmanDataDownloaderV3;

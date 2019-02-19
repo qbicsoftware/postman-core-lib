@@ -4,8 +4,10 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.dataset.id.DataSetPermId;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.core.PostmanFilterOptions;
+import life.qbic.testConfigurations.Fast;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,6 +15,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
+@Category({Test.class, Fast.class})
 public class PostmanDataFiltererTest {
 
     private PostmanDataFilterer postmanDataFilterer;
