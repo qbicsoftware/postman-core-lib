@@ -7,7 +7,6 @@ import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.Sample;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.fetchoptions.SampleFetchOptions;
 import ch.ethz.sis.openbis.generic.asapi.v3.dto.sample.search.SampleSearchCriteria;
 import ch.ethz.sis.openbis.generic.dssapi.v3.IDataStoreServerApi;
-import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.DataSetFile;
 import ch.ethz.sis.openbis.generic.dssapi.v3.dto.datasetfile.id.DataSetFilePermId;
 import life.qbic.util.RegexFilterUtil;
 import org.junit.Before;
@@ -64,6 +63,7 @@ public class PostmanDataFinderTest {
                 .thenReturn(searchResultSample);
         when(searchResultSample.getObjects())
                 .thenReturn(Collections.emptyList());
+
         List<DataSet> foundDatasets = postmanDataFinder.findAllDatasetsRecursive("someID");
 
         verify(iApplicationServerApi, times(1))
@@ -93,6 +93,7 @@ public class PostmanDataFinderTest {
                 .thenReturn(Collections.emptyList());
 
         List<DataSetFilePermId> result = postmanDataFinderSpy.findAllRegexFilteredPermIDs("", Collections.singletonList("regex"));
+
         PowerMockito.verifyStatic(RegexFilterUtil.class, VerificationModeFactory.times(1));
         RegexFilterUtil.findAllRegexFilteredIDsGroovy(Mockito.anyList(), Mockito.anyList(), Mockito.any(), Mockito.any());
 

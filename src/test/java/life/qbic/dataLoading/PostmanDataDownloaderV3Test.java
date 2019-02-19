@@ -59,6 +59,7 @@ public class PostmanDataDownloaderV3Test {
         when(postmanDataFinder.findAllDatasetsRecursive(Mockito.anyString()))
                 .thenReturn(datasets);
         when(datasets.size()).thenReturn(1);
+
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(Collections.singletonList("randomSampleID"),
                                                                 new PostmanFilterOptions(),
                                                                 "somepath");
@@ -75,6 +76,7 @@ public class PostmanDataDownloaderV3Test {
         when(postmanDataFinder.findAllSuffixFilteredPermIDs(Mockito.anyString(), anyList()))
                 .thenReturn(filePermIds);
         when(filePermIds.size()).thenReturn(1);
+
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setSuffixes(Collections.singletonList("suffix"));
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(Collections.singletonList("randomSampleID"),
@@ -107,6 +109,7 @@ public class PostmanDataDownloaderV3Test {
     public void testDownloadRequestedFilesOfDatasetCodeFiltering() throws Exception {
         when(postmanDataFinder.findAllDatasetsRecursive(Mockito.anyString()))
                 .thenReturn(datasets);
+
         PostmanFilterOptions postmanFilterOptions = new PostmanFilterOptions();
         postmanFilterOptions.setDatasetCodes(Collections.singletonList("someCode"));
         postmanDataDownloaderV3.downloadRequestedFilesOfDatasets(Collections.singletonList("randomSampleID"),
